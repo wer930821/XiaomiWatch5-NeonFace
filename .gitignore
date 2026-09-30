@@ -4,3 +4,5 @@ local.properties
 **/build/
 install-log.txt
 *.iml
+
+release/
