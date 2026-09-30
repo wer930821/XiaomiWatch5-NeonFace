@@ -69,6 +69,7 @@ fun MainScreen(
     onUpdateUpdater: () -> Unit,
     onPickApk: (android.net.Uri) -> Unit,
     onDownloadLatest: () -> Unit,
+    onDownloadCyber: () -> Unit,
     onToggleScan: () -> Unit,
     onUseEndpoint: (AdbEndpoint) -> Unit,
     onHostChange: (String) -> Unit,
@@ -165,6 +166,15 @@ fun MainScreen(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(if (state.downloadingLatest) "下載中…" else "下載最新版 Neon Core Blue")
+                }
+
+                FilledTonalButton(
+                    onClick = onDownloadCyber,
+                    enabled = !state.downloadingLatest && !state.busy,
+                    shape = CircleShape,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(if (state.downloadingLatest) "下載中…" else "下載 Cyber Neon City")
                 }
 
                 state.apk?.let { apk ->

@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "watchface/**"
+      - "cyberwatchface/**"
       - "phone-updater/**"
       - "tools/**"
       - "build.gradle.kts"
@@ -63,6 +64,9 @@ jobs:
       - name: Generate animated watch background
         run: python tools/generate_dynamic_background.py
 
+      - name: Generate cyberpunk watch background
+        run: python tools/generate_cyber_background.py
+
       - name: Restore release keystore
         if: env.RELEASE_KEYSTORE_BASE64 != ''
         shell: bash
@@ -76,11 +80,12 @@ jobs:
 
       - name: Build signed release APKs
         run: |
-          gradle :watchface:assembleRelease :phone-updater:assembleRelease
+          gradle :watchface:assembleRelease :cyberwatchface:assembleRelease :phone-updater:assembleRelease
 
       - name: Prepare release files
         run: |
           cp watchface/build/outputs/apk/release/watchface-release.apk NeonCoreBlue-watch.apk
+          cp cyberwatchface/build/outputs/apk/release/cyberwatchface-release.apk CyberNeonCity-watch.apk
           cp phone-updater/build/outputs/apk/release/phone-updater-release.apk NeonFace-Updater.apk
           cat > update-info.json <<EOF
           {
@@ -97,6 +102,7 @@ jobs:
           name: neonface-test-apks
           path: |
             NeonCoreBlue-watch.apk
+            CyberNeonCity-watch.apk
             NeonFace-Updater.apk
             update-info.json
 
@@ -108,6 +114,7 @@ jobs:
           gh release delete latest --cleanup-tag -y || true
           gh release create latest \
             NeonCoreBlue-watch.apk \
+            CyberNeonCity-watch.apk \
             NeonFace-Updater.apk \
             update-info.json \
             --title "NeonFace Latest" \

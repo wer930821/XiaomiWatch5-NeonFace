@@ -7,5 +7,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "XiaomiWatch5NeonFace"
 include(":watchface")
+include(":cyberwatchface")
 
 include(":phone-updater")

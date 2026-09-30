@@ -244,6 +244,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun downloadCyber() {
+        if (_state.value.downloadingLatest || _state.value.busy) return
+        viewModelScope.launch {
+            _state.update { it.copy(downloadingLatest = true) }
+            log("正在下載最新版 Cyber Neon City…")
+            try {
+                val staged = withContext(Dispatchers.IO) {
+                    val url = URL(CYBER_APK_URL)
+                    val connection = (url.openConnection() as HttpURLConnection).apply {
+                        instanceFollowRedirects = true
+                        connectTimeout = 15_000
+                        readTimeout = 60_000
+                        requestMethod = "GET"
+                    }
+                    connection.connect()
+                    if (connection.responseCode !in 200..299) {
+                        throw IOException("下載失敗：HTTP " + connection.responseCode)
+                    }
+                    val target = File(getApplication<Application>().cacheDir, "CyberNeonCity-watch.apk")
+                    connection.inputStream.use { input ->
+                        target.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    connection.disconnect()
+                    ApkStager.stageFile(getApplication(), target, "CyberNeonCity-watch.apk")
+                }
+                _state.update { it.copy(apk = staged) }
+                log("已下載 " + staged.label + " · " + staged.version + " · " + staged.sizeText)
+            } catch (t: Throwable) {
+                log("下載 Cyber Neon City 失敗：" + t.message)
+            } finally {
+                _state.update { it.copy(downloadingLatest = false) }
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- discovery
 
     fun toggleScan() {
@@ -420,6 +456,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_HOST = "host"
         private const val KEY_PORT = "port"
         private const val LATEST_APK_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonCoreBlue-watch.apk"
+        private const val CYBER_APK_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/CyberNeonCity-watch.apk"
         private const val UPDATER_APK_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk"
         private const val UPDATER_INFO_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/update-info.json"
     }

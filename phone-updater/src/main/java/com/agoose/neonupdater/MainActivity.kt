@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
                     onUpdateUpdater = vm::updateUpdater,
                     onPickApk = vm::onApkPicked,
                     onDownloadLatest = vm::downloadLatest,
+                    onDownloadCyber = vm::downloadCyber,
                     onToggleScan = vm::toggleScan,
                     onUseEndpoint = vm::useEndpoint,
                     onHostChange = vm::setHost,
