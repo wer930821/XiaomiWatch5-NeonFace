@@ -173,14 +173,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setPort(value: String) = _state.update { it.copy(port = value.filter(Char::isDigit)) }
     fun setPairPort(value: String) = _state.update { it.copy(pairPort = value.filter(Char::isDigit)) }
     fun setPairCode(value: String) = _state.update { it.copy(pairCode = value.filter(Char::isDigit).take(6)) }
-    fun showPairDialog(show: Boolean) = _state.update { it.copy(showPairDialog = show) }
+    fun showPairDialog(show: Boolean) {
+        _state.update { current ->
+            if (!show) return@update current.copy(showPairDialog = false)
+            val pairing = current.endpoints.firstOrNull {
+                it.kind == EndpointKind.PAIRING && (current.host.isBlank() || it.host == current.host)
+            } ?: current.endpoints.firstOrNull { it.kind == EndpointKind.PAIRING }
+            current.copy(
+                host = pairing?.host ?: current.host,
+                pairPort = pairing?.port?.toString() ?: current.pairPort,
+                showPairDialog = true,
+            )
+        }
+    }
 
     // ---------------------------------------------------------------- pair / connect
 
     fun pair() {
         val current = _state.value
-        val host = current.host
-        val port = current.pairPort.toIntOrNull()
+        val discoveredPairing = current.endpoints.firstOrNull {
+            it.kind == EndpointKind.PAIRING && it.host == current.host
+        }
+        val host = discoveredPairing?.host ?: current.host
+        val port = discoveredPairing?.port ?: current.pairPort.toIntOrNull()
         val code = current.pairCode
         if (host.isBlank() || port == null || code.length != 6) {
             log("Pairing needs an address, the pairing port and the 6-digit code.")
@@ -188,7 +203,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         _state.update { it.copy(showPairDialog = false) }
         runAdb("Pairing…") { manager ->
-            log("Pairing with $host:$port…")
+            log("正在使用配對連接埠 $host:$port 配對…")
             manager.pair(host, port, code)
             log("Paired. Now connect using the port shown on the Wireless debugging screen.")
             _state.update { it.copy(pairCode = "") }
