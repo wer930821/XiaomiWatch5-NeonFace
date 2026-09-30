@@ -21,6 +21,38 @@
             </Ellipse>
         </PartDraw>
 
+        <!-- Dynamic neon second marker: one revolution per minute -->
+        <Group name="second_orbit" x="0" y="0" width="480" height="480" pivotX="0.5" pivotY="0.5">
+            <Transform target="angle" value="[SECOND] * 6" />
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+
+            <PartDraw x="226" y="30" width="28" height="28">
+                <Ellipse x="8" y="8" width="12" height="12">
+                    <Fill color="#8BFAFF" />
+                </Ellipse>
+                <Ellipse x="3" y="3" width="22" height="22">
+                    <Stroke color="#20E5F5" width="2" />
+                </Ellipse>
+            </PartDraw>
+
+            <PartDraw x="234" y="54" width="12" height="22">
+                <RoundRectangle x="4" y="0" width="4" height="22" cornerRadius="2">
+                    <Fill color="#20E5F5" />
+                </RoundRectangle>
+            </PartDraw>
+        </Group>
+
+        <!-- Animated step-progress arc -->
+        <PartDraw x="0" y="0" width="480" height="480">
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+            <Arc centerX="240" centerY="240" width="414" height="414" startAngle="205" endAngle="205">
+                <Transform target="endAngle" value="205 + min([STEP_PERCENT], 100) * 1.3">
+                    <Animation duration="0.6" interpolation="EASE_IN_OUT" />
+                </Transform>
+                <Stroke color="#19DCEB" thickness="5" />
+            </Arc>
+        </PartDraw>
+
         <!-- Weather -->
         <ComplicationSlot
             slotId="1"
