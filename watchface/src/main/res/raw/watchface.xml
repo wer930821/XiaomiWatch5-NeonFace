@@ -5,73 +5,193 @@
     <Metadata key="STEP_GOAL" value="10000" />
 
     <Scene>
+        <!-- AMOLED black background + subtle neon rings -->
         <PartDraw x="0" y="0" width="480" height="480">
-            <Ellipse x="0" y="0" width="480" height="480"><Fill color="#000000" /></Ellipse>
-            <Ellipse x="10" y="10" width="460" height="460"><Stroke color="#173B59" width="4" /></Ellipse>
-            <Ellipse x="17" y="17" width="446" height="446"><Stroke color="#087CFF" width="2" /></Ellipse>
-            <Ellipse x="23" y="23" width="434" height="434"><Stroke color="#17E8FF" width="2" /></Ellipse>
-            <Ellipse x="29" y="29" width="422" height="422"><Stroke color="#0B3B52" width="1" /></Ellipse>
+            <Ellipse x="0" y="0" width="480" height="480">
+                <Fill color="#000000" />
+            </Ellipse>
+            <Ellipse x="13" y="13" width="454" height="454">
+                <Stroke color="#123952" width="3" />
+            </Ellipse>
+            <Ellipse x="20" y="20" width="440" height="440">
+                <Stroke color="#087CFF" width="2" />
+            </Ellipse>
+            <Ellipse x="26" y="26" width="428" height="428">
+                <Stroke color="#18E5F5" width="2" />
+            </Ellipse>
         </PartDraw>
 
-        <ComplicationSlot slotId="1" displayName="weather_slot" supportedTypes="SHORT_TEXT EMPTY" x="42" y="64" width="150" height="68">
-            <BoundingOval x="0" y="0" width="150" height="68" />
+        <!-- Weather -->
+        <ComplicationSlot
+            slotId="1"
+            displayName="weather_slot"
+            supportedTypes="SHORT_TEXT EMPTY"
+            x="48"
+            y="62"
+            width="150"
+            height="66">
+
+            <BoundingOval x="0" y="0" width="150" height="66" />
+
             <Complication type="SHORT_TEXT">
-                <PartDraw x="0" y="0" width="150" height="68">
-                    <RoundRectangle x="0" y="0" width="150" height="68" cornerRadius="26"><Fill color="#081218" /><Stroke color="#14DCF7" width="2" /></RoundRectangle>
+                <PartDraw x="0" y="0" width="150" height="66">
+                    <RoundRectangle x="0" y="0" width="150" height="66" cornerRadius="28">
+                        <Fill color="#071116" />
+                        <Stroke color="#1A6D87" width="2" />
+                    </RoundRectangle>
                 </PartDraw>
-                <PartText x="8" y="9" width="134" height="50">
-                    <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="23" weight="BOLD" color="#D9FCFF"><Template><![CDATA[%s]]><Parameter expression="[COMPLICATION.TEXT]"/></Template></Font></Text>
+                <PartText x="8" y="8" width="134" height="50">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="25" weight="BOLD" color="#E4FCFF">
+                            <Template><![CDATA[%s]]><Parameter expression="[COMPLICATION.TEXT]" /></Template>
+                        </Font>
+                    </Text>
                 </PartText>
             </Complication>
-            <Complication type="EMPTY" />
+
+            <Complication type="EMPTY">
+                <PartText x="8" y="8" width="134" height="50">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="20" color="#8298A0"><![CDATA[天氣]]></Font>
+                    </Text>
+                </PartText>
+            </Complication>
+
             <Variant mode="AMBIENT" target="alpha" value="0" />
         </ComplicationSlot>
 
-        <Group x="288" y="64" width="150" height="68">
+        <!-- Battery -->
+        <Group x="282" y="62" width="150" height="66">
             <Variant mode="AMBIENT" target="alpha" value="0" />
-            <PartDraw x="0" y="0" width="150" height="68">
-                <RoundRectangle x="0" y="0" width="150" height="68" cornerRadius="26"><Fill color="#081218" /><Stroke color="#14DCF7" width="2" /></RoundRectangle>
+
+            <PartDraw x="0" y="0" width="150" height="66">
+                <RoundRectangle x="0" y="0" width="150" height="66" cornerRadius="28">
+                    <Fill color="#071116" />
+                    <Stroke color="#1A6D87" width="2" />
+                </RoundRectangle>
             </PartDraw>
-            <PartText x="0" y="9" width="150" height="50">
-                <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="27" weight="BOLD" color="#D9FCFF"><Template><![CDATA[%d%%]]><Parameter expression="[BATTERY_PERCENT]"/></Template></Font></Text>
+
+            <PartText x="0" y="8" width="150" height="50">
+                <Text align="CENTER" verticalAlign="CENTER">
+                    <Font family="SYNC_TO_DEVICE" size="27" weight="BOLD" color="#E4FCFF">
+                        <Template><![CDATA[%d%%]]><Parameter expression="[BATTERY_PERCENT]" /></Template>
+                    </Font>
+                </Text>
                 <Launch target="BATTERY_STATUS" />
             </PartText>
         </Group>
 
-        <DigitalClock x="40" y="164" width="400" height="112">
-            <TimeText x="0" y="0" width="400" height="112" format="HH:mm" hourFormat="SYNC_TO_DEVICE" align="CENTER">
-                <Font family="SYNC_TO_DEVICE" size="92" weight="BOLD" color="#F5FEFF" />
+        <!-- Main time: use the WFF native clock element -->
+        <DigitalClock x="40" y="150" width="400" height="118">
+            <TimeText
+                x="0"
+                y="0"
+                width="400"
+                height="118"
+                format="hh:mm"
+                hourFormat="SYNC_TO_DEVICE"
+                align="CENTER"
+                verticalAlign="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="88" weight="BOLD" color="#F2FDFF" />
             </TimeText>
         </DigitalClock>
 
-        <PartText x="105" y="270" width="270" height="42">
-            <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="21" color="#7BEFFF"><Template><![CDATA[%02d/%02d  %s]]><Parameter expression="[MONTH]"/><Parameter expression="[DAY]"/><Parameter expression="[DAY_OF_WEEK_S]"/></Template></Font></Text>
+        <!-- Date -->
+        <PartText x="95" y="268" width="290" height="42">
+            <Text align="CENTER" verticalAlign="CENTER">
+                <Font family="SYNC_TO_DEVICE" size="21" weight="BOLD" color="#69EAF8">
+                    <Template><![CDATA[%02d/%02d  %s]]>
+                        <Parameter expression="[MONTH]" />
+                        <Parameter expression="[DAY]" />
+                        <Parameter expression="[DAY_OF_WEEK_S]" />
+                    </Template>
+                </Font>
+            </Text>
         </PartText>
 
-        <PartDraw x="150" y="319" width="180" height="4">
+        <PartDraw x="150" y="316" width="180" height="4">
             <Variant mode="AMBIENT" target="alpha" value="0" />
-            <RoundRectangle x="0" y="0" width="180" height="4" cornerRadius="2"><Fill color="#19DFF8" /></RoundRectangle>
+            <RoundRectangle x="0" y="0" width="180" height="4" cornerRadius="2">
+                <Fill color="#18E5F5" />
+            </RoundRectangle>
         </PartDraw>
 
-        <Group x="46" y="342" width="170" height="88">
+        <!-- Steps -->
+        <Group x="42" y="338" width="175" height="92">
             <Variant mode="AMBIENT" target="alpha" value="0" />
-            <PartText x="0" y="0" width="170" height="48">
-                <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="34" weight="BOLD" color="#43F1F1"><Template><![CDATA[%d]]><Parameter expression="[STEP_COUNT]"/></Template></Font></Text>
+
+            <PartText x="0" y="0" width="175" height="50">
+                <Text align="CENTER" verticalAlign="CENTER">
+                    <Font family="SYNC_TO_DEVICE" size="34" weight="BOLD" color="#42ECEB">
+                        <Template><![CDATA[%d]]><Parameter expression="[STEP_COUNT]" /></Template>
+                    </Font>
+                </Text>
             </PartText>
-            <PartText x="0" y="47" width="170" height="28">
-                <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="16" color="#8FAAB5">步數</Font></Text>
+
+            <PartText x="0" y="50" width="175" height="28">
+                <Text align="CENTER" verticalAlign="CENTER">
+                    <Font family="SYNC_TO_DEVICE" size="16" color="#8EA7B0"><![CDATA[步數]]></Font>
+                </Text>
             </PartText>
         </Group>
 
-        <Group x="264" y="342" width="170" height="88">
+        <!-- Heart-rate complication: use Wear OS system heart-rate provider instead of [HEART_RATE] -->
+        <ComplicationSlot
+            slotId="2"
+            displayName="heart_rate_slot"
+            supportedTypes="SHORT_TEXT SMALL_IMAGE EMPTY"
+            x="263"
+            y="338"
+            width="175"
+            height="92">
+
+            <DefaultProviderPolicy
+                defaultSystemProvider="HEART_RATE"
+                defaultSystemProviderType="SHORT_TEXT" />
+
+            <BoundingOval x="0" y="0" width="175" height="92" />
+
+            <Complication type="SHORT_TEXT">
+                <PartText x="0" y="0" width="175" height="50">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="34" weight="BOLD" color="#FF6683">
+                            <Template><![CDATA[%s]]><Parameter expression="[COMPLICATION.TEXT]" /></Template>
+                        </Font>
+                    </Text>
+                </PartText>
+
+                <PartText x="0" y="50" width="175" height="28">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="16" color="#B99AA4"><![CDATA[心率 bpm]]></Font>
+                    </Text>
+                </PartText>
+            </Complication>
+
+            <Complication type="SMALL_IMAGE">
+                <PartImage x="62" y="2" width="50" height="50">
+                    <Image resource="[COMPLICATION.SMALL_IMAGE]" />
+                </PartImage>
+                <PartText x="0" y="50" width="175" height="28">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="16" color="#B99AA4"><![CDATA[心率]]></Font>
+                    </Text>
+                </PartText>
+            </Complication>
+
+            <Complication type="EMPTY">
+                <PartText x="0" y="0" width="175" height="50">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="30" weight="BOLD" color="#FF6683"><![CDATA[--]]></Font>
+                    </Text>
+                </PartText>
+                <PartText x="0" y="50" width="175" height="28">
+                    <Text align="CENTER" verticalAlign="CENTER">
+                        <Font family="SYNC_TO_DEVICE" size="16" color="#B99AA4"><![CDATA[心率 bpm]]></Font>
+                    </Text>
+                </PartText>
+            </Complication>
+
             <Variant mode="AMBIENT" target="alpha" value="0" />
-            <PartText x="0" y="0" width="170" height="48">
-                <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="34" weight="BOLD" color="#FF647F"><Template><![CDATA[%d]]><Parameter expression="round([HEART_RATE])"/></Template></Font></Text>
-                <Launch target="HEALTH_HEART_RATE" />
-            </PartText>
-            <PartText x="0" y="47" width="170" height="28">
-                <Text align="CENTER"><Font family="SYNC_TO_DEVICE" size="16" color="#B89AA3">心率 bpm</Font></Text>
-            </PartText>
-        </Group>
+        </ComplicationSlot>
     </Scene>
 </WatchFace>
