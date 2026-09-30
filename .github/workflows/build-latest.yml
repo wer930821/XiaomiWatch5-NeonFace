@@ -82,6 +82,13 @@ jobs:
         run: |
           cp watchface/build/outputs/apk/release/watchface-release.apk NeonCoreBlue-watch.apk
           cp phone-updater/build/outputs/apk/release/phone-updater-release.apk NeonFace-Updater.apk
+          cat > update-info.json <<EOF
+          {
+            "updaterVersionCode": ${VERSION_CODE},
+            "updaterVersionName": "${VERSION_NAME}",
+            "updaterApkUrl": "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk"
+          }
+          EOF
 
       - name: Upload test artifacts when signing is not configured
         if: env.RELEASE_KEYSTORE_BASE64 == ''
@@ -91,6 +98,7 @@ jobs:
           path: |
             NeonCoreBlue-watch.apk
             NeonFace-Updater.apk
+            update-info.json
 
       - name: Publish stable latest release
         if: env.RELEASE_KEYSTORE_BASE64 != ''
@@ -101,6 +109,7 @@ jobs:
           gh release create latest \
             NeonCoreBlue-watch.apk \
             NeonFace-Updater.apk \
+            update-info.json \
             --title "NeonFace Latest" \
             --notes "Automated build from ${GITHUB_SHA}" \
             --latest
