@@ -115,6 +115,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         updaterLatestVersion = info.second.ifBlank { null },
                     )
                 }
+                if (available) {
+                    UpdateNotifier.notifyUpdaterUpdate(getApplication(), info.second.ifBlank { null })
+                }
                 if (!silent) {
                     log(
                         if (available) "發現更新器新版 ${info.second}（${info.first}），目前版本 ${BuildConfig.VERSION_NAME}（$currentCode）。"
