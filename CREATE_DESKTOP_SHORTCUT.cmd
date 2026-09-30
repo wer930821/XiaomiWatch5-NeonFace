@@ -2,27 +2,17 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 
-set "TARGET=%~dp0START_MANAGER.cmd"
-set "WORKDIR=%~dp0"
+set "VBS=%~dp0START_MANAGER.vbs"
 set "SHORTCUT=%USERPROFILE%\Desktop\Xiaomi Watch 5 NeonFace.lnk"
 
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command ^
   "$ws = New-Object -ComObject WScript.Shell; " ^
   "$sc = $ws.CreateShortcut('%SHORTCUT%'); " ^
-  "$sc.TargetPath = '%TARGET%'; " ^
-  "$sc.WorkingDirectory = '%WORKDIR%'; " ^
+  "$sc.TargetPath = 'wscript.exe'; " ^
+  "$sc.Arguments = '""%VBS%""'; " ^
+  "$sc.WorkingDirectory = '%~dp0'; " ^
   "$sc.IconLocation = 'shell32.dll,168'; " ^
   "$sc.Description = 'Xiaomi Watch 5 NeonFace Manager'; " ^
   "$sc.Save()"
 
-if errorlevel 1 (
-  echo Failed to create desktop shortcut.
-  pause
-  exit /b 1
-)
-
-echo Desktop shortcut created:
-echo %SHORTCUT%
-echo.
-pause
-exit /b 0
+exit /b %ERRORLEVEL%
