@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -459,12 +458,6 @@ private fun LogCard(log: List<String>) {
                     },
                     enabled = visibleLog.isNotEmpty(),
                 ) {
-                    Icon(
-                        Icons.Default.ContentCopy,
-                        contentDescription = "複製執行紀錄",
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(6.dp))
                     Text("複製")
                 }
             }
