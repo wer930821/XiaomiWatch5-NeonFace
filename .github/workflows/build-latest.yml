@@ -26,6 +26,7 @@ jobs:
       RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
       RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
       RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+      RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
 
     steps:
       - name: Checkout
@@ -56,13 +57,10 @@ jobs:
         run: python tools/generate_dynamic_background.py
 
       - name: Restore release keystore
+        if: env.RELEASE_KEYSTORE_BASE64 != ''
         shell: bash
         run: |
-          if [ -z "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" ]; then
-            echo "Missing RELEASE_KEYSTORE_BASE64 secret"
-            exit 1
-          fi
-          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > "$RELEASE_STORE_FILE"
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RELEASE_STORE_FILE"
 
       - name: Set up Gradle 8.13
         uses: gradle/actions/setup-gradle@v4
@@ -78,7 +76,17 @@ jobs:
           cp watchface/build/outputs/apk/release/watchface-release.apk NeonCoreBlue-watch.apk
           cp phone-updater/build/outputs/apk/release/phone-updater-release.apk NeonFace-Updater.apk
 
+      - name: Upload test artifacts when signing is not configured
+        if: env.RELEASE_KEYSTORE_BASE64 == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: neonface-test-apks
+          path: |
+            NeonCoreBlue-watch.apk
+            NeonFace-Updater.apk
+
       - name: Publish stable latest release
+        if: env.RELEASE_KEYSTORE_BASE64 != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
