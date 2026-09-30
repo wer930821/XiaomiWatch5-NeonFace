@@ -21,6 +21,61 @@
             </Ellipse>
         </PartDraw>
 
+        <!-- Scenic layer A: night mountains, moon, stars and lake -->
+        <Group name="scenery" x="0" y="0" width="480" height="480">
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+
+            <!-- Moon -->
+            <PartDraw x="0" y="0" width="480" height="480">
+                <Ellipse x="325" y="118" width="42" height="42">
+                    <Fill color="#DDFBFF" />
+                </Ellipse>
+                <Ellipse x="337" y="110" width="42" height="42">
+                    <Fill color="#000000" />
+                </Ellipse>
+            </PartDraw>
+
+            <!-- Stars -->
+            <PartDraw x="0" y="0" width="480" height="480">
+                <Ellipse x="90" y="132" width="4" height="4"><Fill color="#A7F7FF" /></Ellipse>
+                <Ellipse x="132" y="111" width="3" height="3"><Fill color="#D7FCFF" /></Ellipse>
+                <Ellipse x="186" y="135" width="4" height="4"><Fill color="#79EFFF" /></Ellipse>
+                <Ellipse x="245" y="105" width="3" height="3"><Fill color="#D7FCFF" /></Ellipse>
+                <Ellipse x="286" y="139" width="4" height="4"><Fill color="#79EFFF" /></Ellipse>
+                <Ellipse x="392" y="148" width="3" height="3"><Fill color="#D7FCFF" /></Ellipse>
+            </PartDraw>
+
+            <!-- Distant mountain line -->
+            <PartDraw x="0" y="0" width="480" height="480">
+                <Line startX="54" startY="342" endX="105" endY="306"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="105" startY="306" endX="145" endY="331"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="145" startY="331" endX="205" endY="290"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="205" startY="290" endX="250" endY="326"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="250" startY="326" endX="306" endY="297"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="306" startY="297" endX="360" endY="334"><Stroke color="#0A5365" width="3" /></Line>
+                <Line startX="360" startY="334" endX="426" endY="309"><Stroke color="#0A5365" width="3" /></Line>
+            </PartDraw>
+
+            <!-- Foreground mountain line -->
+            <PartDraw x="0" y="0" width="480" height="480">
+                <Line startX="42" startY="374" endX="92" endY="337"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="92" startY="337" endX="137" endY="365"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="137" startY="365" endX="192" endY="325"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="192" startY="325" endX="242" endY="367"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="242" startY="367" endX="302" endY="334"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="302" startY="334" endX="355" endY="372"><Stroke color="#19DCEB" width="3" /></Line>
+                <Line startX="355" startY="372" endX="431" endY="342"><Stroke color="#19DCEB" width="3" /></Line>
+            </PartDraw>
+
+            <!-- Lake horizon and reflections -->
+            <PartDraw x="0" y="0" width="480" height="480">
+                <Line startX="78" startY="382" endX="402" endY="382"><Stroke color="#147D91" width="2" /></Line>
+                <Line startX="132" startY="396" endX="348" endY="396"><Stroke color="#0C6878" width="2" /></Line>
+                <Line startX="166" startY="407" endX="314" endY="407"><Stroke color="#0A4D59" width="2" /></Line>
+                <Line startX="194" startY="418" endX="286" endY="418"><Stroke color="#073941" width="2" /></Line>
+            </PartDraw>
+        </Group>
+
         <!-- Dynamic neon second marker: one revolution per minute -->
         <Group name="second_orbit" x="0" y="0" width="480" height="480" pivotX="0.5" pivotY="0.5">
             <Transform target="angle" value="[SECOND] * 6" />
