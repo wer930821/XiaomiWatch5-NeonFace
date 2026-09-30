@@ -461,6 +461,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             if (output.contains("Success", ignoreCase = true)) {
                 log("✓ ${apk.label} installed on the watch.")
+
+                if (apk.packageName == "com.agoose.xiaomiwatch5.cyberneoncity") {
+                    val packagePath = runCatching {
+                        AdbTransfer.shell(manager, "pm path ${apk.packageName}").trim()
+                    }.getOrDefault("")
+                    if (packagePath.isBlank()) {
+                        throw IOException("Cyber Neon City APK 已安裝，但系統查不到套件。")
+                    }
+
+                    log("正在要求 Wear OS 直接切換到 Cyber Neon City…")
+                    val setFace = AdbTransfer.shell(
+                        manager,
+                        "am broadcast -a com.google.android.wearable.app.DEBUG_SURFACE " +
+                            "--es operation set-watchface --es watchFaceId ${apk.packageName}"
+                    ).trim()
+                    log("Wear OS 回應：" + setFace.ifBlank { "已送出切換指令" })
+                }
             } else {
                 throw IOException(output.ifBlank { "pm install returned no output" })
             }
