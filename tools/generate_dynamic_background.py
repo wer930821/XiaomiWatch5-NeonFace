@@ -25,7 +25,7 @@ def pts(points):
 
 # Stable star field.
 stars = []
-for _ in range(70):
+for _ in range(34):
     stars.append((
         random.randint(sc(30), sc(450)),
         random.randint(sc(45), sc(205)),
@@ -88,15 +88,15 @@ for fi in range(FRAME_COUNT):
         rr = max(1, int(r * (0.8 + tw * 0.35)))
         d.ellipse((x-rr, y-rr, x+rr, y+rr), fill=(c, min(255,c+12), 255))
 
-    # Moon with glow.
+    # Moon with glow. Keep it below the battery complication.
     moon_glow = Image.new("RGBA", (WW, HH), (0,0,0,0))
     mg = ImageDraw.Draw(moon_glow, "RGBA")
-    mg.ellipse((sc(326),sc(88),sc(408),sc(170)), fill=(170,225,255,38))
-    moon_glow = moon_glow.filter(ImageFilter.GaussianBlur(sc(18)))
+    mg.ellipse((sc(322),sc(135),sc(402),sc(215)), fill=(160,220,255,32))
+    moon_glow = moon_glow.filter(ImageFilter.GaussianBlur(sc(20)))
     img = Image.alpha_composite(img.convert("RGBA"), moon_glow).convert("RGB")
     d = ImageDraw.Draw(img)
-    d.ellipse((sc(350),sc(107),sc(385),sc(142)), fill=(226,242,246))
-    d.ellipse((sc(360),sc(101),sc(390),sc(131)), fill=(5,12,28))
+    d.ellipse((sc(348),sc(157),sc(382),sc(191)), fill=(226,242,246))
+    d.ellipse((sc(358),sc(150),sc(388),sc(180)), fill=(5,12,28))
 
     # Drifting soft cloud bands.
     cloud = Image.new("RGBA", (WW, HH), (0,0,0,0))
@@ -139,36 +139,45 @@ for fi in range(FRAME_COUNT):
     d = ImageDraw.Draw(img)
 
     # Lake base.
-    d.rectangle((0,sc(377),WW,HH), fill=(3,12,19))
+    d.rectangle((0,sc(368),WW,HH), fill=(3,12,20))
 
     # Soft mirrored mountain silhouette.
     mirror = Image.new("RGBA", (WW, HH), (0,0,0,0))
     md = ImageDraw.Draw(mirror, "RGBA")
-    reflected = [(x, 377 + (377-y)*0.48) for x,y in near_ridge]
-    md.polygon(pts(reflected + [(480,480),(0,480)]), fill=(12,42,53,75))
-    mirror = mirror.filter(ImageFilter.GaussianBlur(sc(3)))
+    reflected = [(x, 368 + (368-y)*0.42) for x,y in near_ridge]
+    md.polygon(pts(reflected + [(480,480),(0,480)]), fill=(12,45,58,70))
+    mirror = mirror.filter(ImageFilter.GaussianBlur(sc(5)))
     img = Image.alpha_composite(img.convert("RGBA"), mirror).convert("RGB")
     d = ImageDraw.Draw(img)
 
-    # Animated water ripples / moon reflection.
-    phase = fi * 0.48
-    for j, yy in enumerate(range(388, 472, 7)):
-        fade = max(15, 88 - j*6)
-        w = max(26, 210 - j*12)
-        jitter = int(10 * math.sin(phase + j*0.8))
-        x0 = 240 - w//2 + jitter
-        x1 = 240 + w//2 - jitter
-        d.line((sc(x0),sc(yy),sc(x1),sc(yy)), fill=(18,86,104), width=max(1,S))
-
-    for j in range(10):
-        yy = 386 + j*7
-        w = max(10, 62 - j*5)
-        wob = int(6 * math.sin(fi*0.42 + j*0.75))
-        d.line(
-            (sc(368-w//2+wob),sc(yy),sc(368+w//2+wob),sc(yy)),
-            fill=(126,184,195),
-            width=S
+    # Animated soft water shimmer, broad and sparse rather than striped.
+    shimmer = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    sd = ImageDraw.Draw(shimmer, "RGBA")
+    phase = fi * 0.40
+    for j, yy in enumerate([382, 394, 407, 421, 437, 454]):
+        base_w = [220, 185, 150, 120, 92, 68][j]
+        wobble = int(12 * math.sin(phase + j * 0.85))
+        x0 = 240 - base_w // 2 + wobble
+        x1 = 240 + base_w // 2 - wobble
+        sd.rounded_rectangle(
+            (sc(x0), sc(yy), sc(x1), sc(yy+2)),
+            radius=sc(1),
+            fill=(30, 175, 205, max(16, 48-j*5))
         )
+
+    # Moon reflection, kept subtle.
+    for j in range(6):
+        yy = 383 + j * 10
+        width = max(12, 52 - j * 7)
+        wob = int(5 * math.sin(fi*0.35 + j*0.7))
+        sd.rounded_rectangle(
+            (sc(365-width//2+wob),sc(yy),sc(365+width//2+wob),sc(yy+2)),
+            radius=sc(1),
+            fill=(165,220,230,max(12,42-j*5))
+        )
+
+    shimmer = shimmer.filter(ImageFilter.GaussianBlur(sc(1.8)))
+    img = Image.alpha_composite(img.convert("RGBA"), shimmer).convert("RGB")
 
     # Dark readable center glass, subtle enough to keep scenery visible.
     glass = Image.new("RGBA", (WW, HH), (0,0,0,0))
