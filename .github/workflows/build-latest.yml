@@ -66,9 +66,6 @@ jobs:
       - name: Generate animated watch background
         run: python tools/generate_dynamic_background.py
 
-      - name: Generate cyberpunk watch background
-        run: python tools/generate_cyber_background.py
-
       - name: Restore release keystore
         if: env.RELEASE_KEYSTORE_BASE64 != ''
         shell: bash
