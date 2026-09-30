@@ -30,18 +30,42 @@ function Write-Log([string]$message) {
 }
 
 function Run-Command([string]$file, [string[]]$arguments) {
+    $job = Start-Job -ScriptBlock {
+        param($exe, $argv, $cwd)
+        try {
+            Set-Location $cwd
+            $lines = & $exe @argv 2>&1
+            $code = $LASTEXITCODE
+            [pscustomobject]@{
+                Code = $code
+                Out  = (($lines | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine)
+                Err  = ''
+            }
+        }
+        catch {
+            [pscustomobject]@{
+                Code = 1
+                Out  = ''
+                Err  = $_.Exception.Message
+            }
+        }
+    } -ArgumentList $file, $arguments, $repoRoot
+
     try {
-        Push-Location $repoRoot
-        $lines = & $file @arguments 2>&1
-        $code = $LASTEXITCODE
-        $output = ($lines | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
-        return [pscustomobject]@{ Code=$code; Out=$output; Err='' }
-    }
-    catch {
-        return [pscustomobject]@{ Code=1; Out=''; Err=$_.Exception.Message }
+        while ($job.State -eq 'Running' -or $job.State -eq 'NotStarted') {
+            [System.Windows.Forms.Application]::DoEvents()
+            Start-Sleep -Milliseconds 120
+        }
+
+        $result = Receive-Job $job
+        if ($null -eq $result) {
+            return [pscustomobject]@{ Code=1; Out=''; Err='Command returned no result.' }
+        }
+
+        return $result
     }
     finally {
-        Pop-Location
+        Remove-Job $job -Force -ErrorAction SilentlyContinue
     }
 }
 
