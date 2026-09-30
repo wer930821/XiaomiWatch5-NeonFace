@@ -83,19 +83,66 @@ try {
     Write-Host "SDK: $sdk"
 
     Step 'Finding ADB'
-    $adb = $null
-    $candidate = Join-Path $sdk 'platform-tools\adb.exe'
-    if (Test-Path $candidate) { $adb = $candidate }
-    if (-not $adb) {
-        $cmd = Get-Command adb.exe -ErrorAction SilentlyContinue
-        if ($cmd) { $adb = $cmd.Source }
+    $adbCandidates = @()
+
+    # Prefer the adb currently available on PATH because it is usually the one
+    # the user already paired with in PowerShell.
+    $cmd = Get-Command adb.exe -ErrorAction SilentlyContinue
+    if ($cmd -and $cmd.Source) { $adbCandidates += $cmd.Source }
+
+    $sdkAdb = Join-Path $sdk 'platform-tools\adb.exe'
+    if (Test-Path $sdkAdb) { $adbCandidates += $sdkAdb }
+
+    # Also look for the WinGet Google Platform Tools install.
+    if ($env:LOCALAPPDATA) {
+        $wingetRoot = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages'
+        if (Test-Path $wingetRoot) {
+            $wingetAdbs = Get-ChildItem -Path $wingetRoot -Filter adb.exe -Recurse -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match 'Google\.PlatformTools' } |
+                Select-Object -ExpandProperty FullName
+            $adbCandidates += $wingetAdbs
+        }
     }
-    if (-not $adb) { Fail 'adb.exe not found. Install Android SDK Platform-Tools.' }
+
+    $adbCandidates = @($adbCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique)
+    if ($adbCandidates.Count -eq 0) { Fail 'adb.exe not found. Install Android SDK Platform-Tools.' }
+
+    $adb = $null
+    $target = $null
+
+    foreach ($candidate in $adbCandidates) {
+        Write-Host "Trying ADB: $candidate"
+        try {
+            & $candidate start-server 2>$null | Out-Null
+            $candidateTarget = Refresh-WatchTarget $candidate 8
+            if ($candidateTarget) {
+                $adb = $candidate
+                $target = $candidateTarget
+                break
+            }
+        } catch {}
+    }
+
+    if (-not $adb) {
+        $adb = $adbCandidates[0]
+        Write-Host 'No watch found yet. Restarting ADB daemon and retrying...' -ForegroundColor Yellow
+        try { & $adb kill-server 2>$null | Out-Null } catch {}
+        Start-Sleep -Seconds 1
+        try { & $adb start-server 2>$null | Out-Null } catch {}
+        $target = Refresh-WatchTarget $adb 15
+    }
+
     Write-Host "ADB: $adb"
 
     Step 'Checking connected watch'
-    $target = Refresh-WatchTarget $adb 15
-    if (-not $target) { Fail 'No ADB device is connected. Enable Wireless debugging on the watch and connect it first.' }
+    if (-not $target) {
+        Write-Host ''
+        Write-Host 'No connected watch was found.' -ForegroundColor Yellow
+        Write-Host 'On the watch: Settings > Developer options > Wireless debugging = ON'
+        Write-Host 'Then use the current IP:port from Wireless debugging with:'
+        Write-Host '  adb connect WATCH_IP:PORT'
+        Fail 'No ADB device is connected.'
+    }
     Write-Host "Target before build: $target" -ForegroundColor Green
 
     try { & $adb -s $target shell input keyevent KEYCODE_WAKEUP 2>$null | Out-Null } catch {}
