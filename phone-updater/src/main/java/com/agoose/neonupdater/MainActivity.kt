@@ -20,6 +20,8 @@ class MainActivity : ComponentActivity() {
                 val state by vm.state.collectAsStateWithLifecycle()
                 MainScreen(
                     state = state,
+                    onCheckUpdater = { vm.checkUpdaterUpdate(silent = false) },
+                    onUpdateUpdater = vm::updateUpdater,
                     onPickApk = vm::onApkPicked,
                     onDownloadLatest = vm::downloadLatest,
                     onToggleScan = vm::toggleScan,
