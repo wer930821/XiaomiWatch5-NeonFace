@@ -34,10 +34,43 @@ $savedAlias = Read-BackupValue 'RELEASE_KEY_ALIAS'
 $keyPass = Read-BackupValue 'RELEASE_KEY_PASSWORD'
 
 if (Test-Path $keystore) {
-    if (-not $storePass -or -not $keyPass) {
-        throw 'Existing keystore found, but signing backup is missing. Do not delete the keystore. Restore release\KEEP_PRIVATE_signing_backup.txt first.'
-    }
     if ($savedAlias) { $keyAlias = $savedAlias }
+
+    if (-not $storePass) {
+        Write-Host 'Existing release keystore found, but the password backup file is missing.' -ForegroundColor Yellow
+        Write-Host 'Enter the SAME keystore password you created the first time. It will not be displayed.'
+        $secureStorePass = Read-Host 'Keystore password' -AsSecureString
+        $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureStorePass)
+        try { $storePass = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
+        finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
+
+        & $keytool.Source -list -keystore $keystore -storepass $storePass -alias $keyAlias *> $null
+        if ($LASTEXITCODE -ne 0) {
+            throw 'The keystore password is incorrect. The keystore was NOT changed. Run the script again and enter the original password.'
+        }
+
+        Write-Host 'Password verified.' -ForegroundColor Green
+        Write-Host 'If you used a different key password when keytool asked, type it now.'
+        Write-Host 'Otherwise press Enter to use the same password as the keystore.'
+        $secureKeyPass = Read-Host 'Key password (Enter = same)' -AsSecureString
+        $ptr2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKeyPass)
+        try { $typedKeyPass = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr2) }
+        finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr2) }
+        if ([string]::IsNullOrEmpty($typedKeyPass)) { $keyPass = $storePass } else { $keyPass = $typedKeyPass }
+
+        @(
+            ('RELEASE_STORE_PASSWORD=' + $storePass),
+            ('RELEASE_KEY_ALIAS=' + $keyAlias),
+            ('RELEASE_KEY_PASSWORD=' + $keyPass),
+            '',
+            'KEEP THIS FILE PRIVATE. DO NOT COMMIT OR SHARE IT.',
+            'Keep the JKS file and these passwords. They are required for future app updates.'
+        ) | Set-Content -Encoding ASCII $backup
+        Write-Host ('Backup recreated: ' + $backup) -ForegroundColor Green
+    } elseif (-not $keyPass) {
+        $keyPass = $storePass
+    }
+
     Write-Host 'Existing release keystore found. Reusing it.' -ForegroundColor Cyan
 } else {
     $storePass = New-RandomPassword
