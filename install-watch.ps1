@@ -147,6 +147,33 @@ try {
 
     try { & $adb -s $target shell input keyevent KEYCODE_WAKEUP 2>$null | Out-Null } catch {}
 
+    Step 'Generating animated scenery'
+    $generator = Join-Path $PSScriptRoot 'tools\generate_dynamic_background.py'
+    if (-not (Test-Path $generator)) { Fail "Dynamic background generator not found: $generator" }
+
+    $python = $null
+    $pyCmd = Get-Command py.exe -ErrorAction SilentlyContinue
+    if ($pyCmd) { $python = @($pyCmd.Source, '-3') }
+    if (-not $python) {
+        $pythonCmd = Get-Command python.exe -ErrorAction SilentlyContinue
+        if ($pythonCmd) { $python = @($pythonCmd.Source) }
+    }
+    if (-not $python) { Fail 'Python 3 was not found. Install Python 3 and run again.' }
+
+    $pythonExe = $python[0]
+    $pythonArgs = @()
+    if ($python.Count -gt 1) { $pythonArgs += $python[1..($python.Count - 1)] }
+
+    & $pythonExe @pythonArgs -c "import PIL" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host 'Pillow is missing. Installing it for the current user...' -ForegroundColor Yellow
+        & $pythonExe @pythonArgs -m pip install --user pillow
+        if ($LASTEXITCODE -ne 0) { Fail 'Could not install Pillow.' }
+    }
+
+    & $pythonExe @pythonArgs $generator
+    if ($LASTEXITCODE -ne 0) { Fail "Dynamic background generation failed with exit code $LASTEXITCODE." }
+
     Step 'Building watch face'
     & (Join-Path $PSScriptRoot 'gradlew.bat') ':watchface:assembleDebug'
     if ($LASTEXITCODE -ne 0) { Fail "Gradle build failed with exit code $LASTEXITCODE." }
