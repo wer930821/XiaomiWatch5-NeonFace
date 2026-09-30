@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -51,6 +52,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -430,16 +433,40 @@ private fun StepCard(step: Int, title: String, content: @Composable () -> Unit) 
 
 @Composable
 private fun LogCard(log: List<String>) {
+    val clipboard = LocalClipboardManager.current
+    val visibleLog = log.takeLast(80)
+
     Card(
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("執行紀錄", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "執行紀錄",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = {
+                        clipboard.setText(AnnotatedString(visibleLog.joinToString("\n")))
+                    },
+                    enabled = visibleLog.isNotEmpty(),
+                ) {
+                    Icon(
+                        Icons.Default.ContentCopy,
+                        contentDescription = "複製執行紀錄",
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text("複製")
+                }
             }
             Spacer(Modifier.height(8.dp))
             Column(
@@ -447,7 +474,7 @@ private fun LogCard(log: List<String>) {
                     .heightIn(max = 260.dp)
                     .verticalScroll(rememberScrollState()),
             ) {
-                log.takeLast(80).forEach { line ->
+                visibleLog.forEach { line ->
                     Text(
                         line,
                         style = MaterialTheme.typography.bodySmall,
