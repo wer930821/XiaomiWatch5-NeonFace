@@ -384,7 +384,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         runAdb("Connecting…") { manager ->
             log("Connecting to $host:$port…")
-            if (manager.isConnected) manager.disconnect()
+
+            // If the app process already has a healthy ADB session, reuse it instead
+            // of disconnecting and reconnecting. Reconnecting an already-live Wear OS
+            // wireless-debugging socket can stall even though the watch shows connected.
+            if (manager.isConnected) {
+                val reused = runCatching {
+                    val model = AdbTransfer.shell(manager, "getprop ro.product.model").trim()
+                    val release = AdbTransfer.shell(manager, "getprop ro.build.version.release").trim()
+                    val label = listOf(model, release.takeIf { it.isNotBlank() }?.let { "Android $it" })
+                        .filterNot { it.isNullOrBlank() }
+                        .joinToString(" · ")
+                        .ifBlank { "$host:$port" }
+                    _state.update { it.copy(connected = true, deviceLabel = label) }
+                    log("Already connected to $label — reusing current session.")
+                    true
+                }.getOrDefault(false)
+                if (reused) return@runAdb
+                runCatching { manager.disconnect() }
+            }
+
             if (!manager.connect(host, port)) throw IOException("The device refused the connection")
             val model = AdbTransfer.shell(manager, "getprop ro.product.model").trim()
             val release = AdbTransfer.shell(manager, "getprop ro.build.version.release").trim()
@@ -412,6 +431,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val remotePath = "/data/local/tmp/watchpush-${System.currentTimeMillis()}.apk"
 
         runAdb("Installing…") { manager ->
+            if (!manager.isConnected) {
+                val current = _state.value
+                val host = current.host
+                val port = current.port.toIntOrNull()
+                    ?: throw IOException("手錶連接埠無效")
+                log("ADB 連線已中斷，正在自動重新連線 $host:$port…")
+                if (!manager.connect(host, port)) {
+                    throw IOException("無法重新連線手錶")
+                }
+                _state.update { it.copy(connected = true) }
+                log("已重新連線手錶。")
+            }
+
             log("Pushing ${apk.fileName} (${apk.sizeText})…")
             _state.update { it.copy(progress = 0f) }
             AdbTransfer.push(manager, File(apk.path), remotePath) { sent, total ->
