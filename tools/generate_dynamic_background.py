@@ -2,12 +2,13 @@ from PIL import Image, ImageDraw, ImageFilter
 import math
 import os
 import random
-import sys
 
 W = H = 480
-FRAME_COUNT = 18
-DURATION_MS = 140
-random.seed(7)
+S = 2
+WW = HH = W * S
+FRAME_COUNT = 20
+DURATION_MS = 160
+random.seed(19)
 
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 drawable = os.path.join(root, "watchface", "src", "main", "res", "drawable")
@@ -16,167 +17,175 @@ os.makedirs(drawable, exist_ok=True)
 gif_path = os.path.join(drawable, "night_lake_anim.gif")
 thumb_path = os.path.join(drawable, "night_lake_thumb.png")
 
-stars = [
-    (
-        random.randint(35, 445),
-        random.randint(55, 185),
-        random.choice([1, 1, 1, 2]),
-        random.random() * math.tau,
-    )
-    for _ in range(45)
+def sc(v):
+    return int(v * S)
+
+def pts(points):
+    return [(sc(x), sc(y)) for x, y in points]
+
+# Stable star field.
+stars = []
+for _ in range(70):
+    stars.append((
+        random.randint(sc(30), sc(450)),
+        random.randint(sc(45), sc(205)),
+        random.choice([1, 1, 1, 2, 2]) * S,
+        random.random() * math.tau
+    ))
+
+# A few fixed mountain ridges for a more photographic layered landscape.
+far_ridge = [
+    (0, 318),(42, 292),(78, 305),(118, 270),(152, 292),(198, 252),
+    (238, 286),(282, 262),(322, 292),(368, 250),(408, 281),(448, 264),(480, 300)
+]
+mid_ridge = [
+    (0, 352),(54, 320),(95, 344),(148, 300),(192, 340),(235, 308),
+    (285, 346),(334, 314),(384, 348),(432, 320),(480, 342)
+]
+near_ridge = [
+    (0, 387),(46, 352),(88, 380),(134, 343),(177, 374),(226, 336),
+    (274, 382),(323, 348),(374, 386),(424, 355),(480, 378)
 ]
 
 rgb_frames = []
 
 for fi in range(FRAME_COUNT):
-    img = Image.new("RGBA", (W, H), (2, 5, 12, 255))
-    d = ImageDraw.Draw(img, "RGBA")
+    img = Image.new("RGB", (WW, HH), (2, 6, 14))
+    d = ImageDraw.Draw(img)
 
-    # Deep blue night-sky gradient.
-    for y in range(H):
-        if y < 330:
-            t = y / 330.0
-            color = (
-                int(3 + 4 * t),
-                int(8 + 20 * t),
-                int(20 + 20 * t),
-                255,
-            )
+    # Smooth sky gradient: dark navy to cool blue near horizon.
+    for y in range(HH):
+        yy = y / S
+        if yy < 330:
+            t = yy / 330.0
+            r = int(4 + 6 * t)
+            g = int(10 + 20 * t)
+            b = int(26 + 34 * t)
         else:
-            t = (y - 330) / 150.0
-            color = (
-                int(5 - 4 * t),
-                int(18 - 10 * t),
-                int(28 - 14 * t),
-                255,
-            )
-        d.line((0, y, W, y), fill=color)
+            t = min(1.0, (yy - 330) / 150.0)
+            r = int(8 - 5 * t)
+            g = int(26 - 15 * t)
+            b = int(46 - 25 * t)
+        d.line((0, y, WW, y), fill=(r, g, b))
 
-    # Twinkling stars.
+    # Soft Milky-Way haze.
+    haze = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    hd = ImageDraw.Draw(haze, "RGBA")
+    for i in range(7):
+        y0 = sc(72 + i * 18)
+        hd.ellipse(
+            (sc(40 - i * 6), y0, sc(440 + i * 8), y0 + sc(72)),
+            fill=(95, 155, 195, max(4, 18 - i * 2))
+        )
+    haze = haze.filter(ImageFilter.GaussianBlur(sc(26)))
+    img = Image.alpha_composite(img.convert("RGBA"), haze).convert("RGB")
+    d = ImageDraw.Draw(img)
+
+    # Stars with gentle twinkle.
     for x, y, r, phase in stars:
-        alpha = int(90 + 110 * (0.5 + 0.5 * math.sin(phase + fi * 0.7)))
-        d.ellipse((x - r, y - r, x + r, y + r), fill=(150, 235, 255, alpha))
+        tw = 0.5 + 0.5 * math.sin(phase + fi * 0.45)
+        c = int(150 + 90 * tw)
+        rr = max(1, int(r * (0.8 + tw * 0.35)))
+        d.ellipse((x-rr, y-rr, x+rr, y+rr), fill=(c, min(255,c+12), 255))
 
-    # Moon and soft glow.
-    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(glow, "RGBA")
-    gd.ellipse((330, 88, 394, 152), fill=(160, 240, 255, 40))
-    glow = glow.filter(ImageFilter.GaussianBlur(12))
-    img = Image.alpha_composite(img, glow)
-    d = ImageDraw.Draw(img, "RGBA")
-    d.ellipse((346, 104, 378, 136), fill=(225, 250, 255, 240))
-    d.ellipse((355, 98, 384, 127), fill=(3, 9, 20, 255))
+    # Moon with glow.
+    moon_glow = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    mg = ImageDraw.Draw(moon_glow, "RGBA")
+    mg.ellipse((sc(326),sc(88),sc(408),sc(170)), fill=(170,225,255,38))
+    moon_glow = moon_glow.filter(ImageFilter.GaussianBlur(sc(18)))
+    img = Image.alpha_composite(img.convert("RGBA"), moon_glow).convert("RGB")
+    d = ImageDraw.Draw(img)
+    d.ellipse((sc(350),sc(107),sc(385),sc(142)), fill=(226,242,246))
+    d.ellipse((sc(360),sc(101),sc(390),sc(131)), fill=(5,12,28))
 
-    # Slowly drifting clouds.
-    cloud = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    # Drifting soft cloud bands.
+    cloud = Image.new("RGBA", (WW, HH), (0,0,0,0))
     cd = ImageDraw.Draw(cloud, "RGBA")
-    shift = (fi * 8) % 560 - 80
-    for base_y, scale, alpha, offset in [
-        (160, 1.0, 28, 0),
-        (205, 0.78, 22, 150),
-    ]:
-        start_x = (shift + offset) % 560 - 100
+    shift = ((fi * 7) % 620) - 120
+    for base_y, alpha, scale, off in [(176,24,1.0,0),(220,18,0.8,170)]:
         for k in range(4):
-            x = start_x + k * 180
+            x = shift + off + k * 190
             cd.ellipse(
-                (x, base_y, x + 90 * scale, base_y + 24 * scale),
-                fill=(90, 190, 220, alpha),
+                (sc(x),sc(base_y),sc(x+120*scale),sc(base_y+28*scale)),
+                fill=(125,165,190,alpha)
             )
             cd.ellipse(
-                (
-                    x + 30 * scale,
-                    base_y - 11 * scale,
-                    x + 120 * scale,
-                    base_y + 22 * scale,
-                ),
-                fill=(110, 210, 235, alpha),
+                (sc(x+35*scale),sc(base_y-10*scale),sc(x+160*scale),sc(base_y+25*scale)),
+                fill=(150,185,205,alpha)
             )
-    cloud = cloud.filter(ImageFilter.GaussianBlur(8))
-    img = Image.alpha_composite(img, cloud)
-    d = ImageDraw.Draw(img, "RGBA")
+    cloud = cloud.filter(ImageFilter.GaussianBlur(sc(12)))
+    img = Image.alpha_composite(img.convert("RGBA"), cloud).convert("RGB")
+    d = ImageDraw.Draw(img)
 
-    # Distant mountains.
-    far = [
-        (0, 340),
-        (55, 300),
-        (110, 327),
-        (167, 278),
-        (223, 322),
-        (285, 292),
-        (340, 330),
-        (404, 285),
-        (480, 330),
-        (480, 480),
-        (0, 480),
+    # Layered mountain silhouettes (filled areas, not wireframe).
+    d.polygon(pts(far_ridge + [(480,390),(0,390)]), fill=(16,31,44))
+    d.polygon(pts(mid_ridge + [(480,410),(0,410)]), fill=(9,24,34))
+    d.polygon(pts(near_ridge + [(480,430),(0,430)]), fill=(5,16,23))
+
+    # Snow/highlight on selected peaks.
+    snow = [
+        [(177,274),(198,252),(218,273),(205,267),(198,259),(190,269)],
+        [(350,270),(368,250),(387,269),(376,264),(369,257),(361,265)]
     ]
-    d.polygon(far, fill=(4, 19, 29, 255))
-    for i in range(8):
-        d.line([far[i], far[i + 1]], fill=(13, 93, 112, 210), width=2)
+    for poly in snow:
+        d.polygon(pts(poly), fill=(95,126,143))
 
-    # Near mountains.
-    near = [
-        (0, 390),
-        (65, 345),
-        (125, 380),
-        (185, 325),
-        (248, 377),
-        (310, 338),
-        (370, 382),
-        (430, 350),
-        (480, 372),
-        (480, 480),
-        (0, 480),
-    ]
-    d.polygon(near, fill=(2, 11, 18, 255))
-    for i in range(8):
-        d.line([near[i], near[i + 1]], fill=(19, 195, 216, 190), width=2)
+    # Thin mist at the waterline.
+    mist = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    md = ImageDraw.Draw(mist, "RGBA")
+    md.rectangle((0,sc(342),WW,sc(390)), fill=(120,165,185,22))
+    mist = mist.filter(ImageFilter.GaussianBlur(sc(14)))
+    img = Image.alpha_composite(img.convert("RGBA"), mist).convert("RGB")
+    d = ImageDraw.Draw(img)
 
-    # Lake and animated cyan reflections.
-    d.rectangle((0, 382, 480, 480), fill=(1, 9, 14, 220))
-    phase = fi * 0.55
-    for j, yy in enumerate(range(392, 468, 8)):
-        width = max(30, 190 - j * 10)
-        jitter = int(8 * math.sin(phase + j * 0.8))
-        x0 = 240 - width // 2 + jitter
-        alpha = max(14, 70 - j * 6)
+    # Lake base.
+    d.rectangle((0,sc(377),WW,HH), fill=(3,12,19))
+
+    # Soft mirrored mountain silhouette.
+    mirror = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    md = ImageDraw.Draw(mirror, "RGBA")
+    reflected = [(x, 377 + (377-y)*0.48) for x,y in near_ridge]
+    md.polygon(pts(reflected + [(480,480),(0,480)]), fill=(12,42,53,75))
+    mirror = mirror.filter(ImageFilter.GaussianBlur(sc(3)))
+    img = Image.alpha_composite(img.convert("RGBA"), mirror).convert("RGB")
+    d = ImageDraw.Draw(img)
+
+    # Animated water ripples / moon reflection.
+    phase = fi * 0.48
+    for j, yy in enumerate(range(388, 472, 7)):
+        fade = max(15, 88 - j*6)
+        w = max(26, 210 - j*12)
+        jitter = int(10 * math.sin(phase + j*0.8))
+        x0 = 240 - w//2 + jitter
+        x1 = 240 + w//2 - jitter
+        d.line((sc(x0),sc(yy),sc(x1),sc(yy)), fill=(18,86,104), width=max(1,S))
+
+    for j in range(10):
+        yy = 386 + j*7
+        w = max(10, 62 - j*5)
+        wob = int(6 * math.sin(fi*0.42 + j*0.75))
         d.line(
-            (x0, yy, x0 + width, yy),
-            fill=(22, 190, 215, alpha),
-            width=2 if j < 4 else 1,
+            (sc(368-w//2+wob),sc(yy),sc(368+w//2+wob),sc(yy)),
+            fill=(126,184,195),
+            width=S
         )
 
-    # Moon reflection.
-    for j in range(8):
-        yy = 388 + j * 8
-        width = max(8, 50 - j * 5)
-        wobble = int(4 * math.sin(fi * 0.6 + j))
-        d.line(
-            (
-                362 - width // 2 + wobble,
-                yy,
-                362 + width // 2 + wobble,
-                yy,
-            ),
-            fill=(140, 238, 248, max(15, 70 - j * 7)),
-            width=2,
-        )
-
-    # Dark glass area behind the clock so text stays readable.
-    glass = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    glass_draw = ImageDraw.Draw(glass, "RGBA")
-    glass_draw.rounded_rectangle(
-        (65, 138, 415, 318),
-        radius=34,
-        fill=(0, 0, 0, 82),
+    # Dark readable center glass, subtle enough to keep scenery visible.
+    glass = Image.new("RGBA", (WW, HH), (0,0,0,0))
+    gd = ImageDraw.Draw(glass, "RGBA")
+    gd.rounded_rectangle(
+        (sc(78),sc(145),sc(402),sc(312)),
+        radius=sc(30),
+        fill=(0,0,0,78)
     )
-    glass = glass.filter(ImageFilter.GaussianBlur(4))
-    img = Image.alpha_composite(img, glass)
+    glass = glass.filter(ImageFilter.GaussianBlur(sc(5)))
+    img = Image.alpha_composite(img.convert("RGBA"), glass).convert("RGB")
 
-    rgb_frames.append(img.convert("RGB"))
+    # Downsample for cleaner photographic edges.
+    img = img.resize((W,H), Image.Resampling.LANCZOS)
+    rgb_frames.append(img)
 
-# Build ONE shared palette for every frame.
-# Some Wear OS GIF decoders misread per-frame/local palettes and show
-# psychedelic red/green/blue colors. A global palette avoids that.
+# Build one shared palette for all frames for reliable Wear OS GIF decoding.
 sample_w = W * len(rgb_frames)
 palette_sample = Image.new("RGB", (sample_w, H))
 for i, frame in enumerate(rgb_frames):
@@ -185,12 +194,12 @@ for i, frame in enumerate(rgb_frames):
 palette_img = palette_sample.resize(
     (max(1, W * 3), max(1, H // 3)),
     Image.Resampling.BILINEAR,
-).convert("P", palette=Image.Palette.ADAPTIVE, colors=128)
+).convert("P", palette=Image.Palette.ADAPTIVE, colors=192)
 
 frames = [
     frame.quantize(
         palette=palette_img,
-        dither=Image.Dither.NONE,
+        dither=Image.Dither.FLOYDSTEINBERG,
     )
     for frame in rgb_frames
 ]
@@ -206,6 +215,5 @@ frames[0].save(
 )
 
 rgb_frames[0].save(thumb_path, optimize=True)
-
 print(gif_path)
 print(thumb_path)
