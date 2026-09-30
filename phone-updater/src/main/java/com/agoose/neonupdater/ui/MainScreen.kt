@@ -63,6 +63,8 @@ import com.agoose.neonupdater.adb.EndpointKind
 @Composable
 fun MainScreen(
     state: UiState,
+    onCheckUpdater: () -> Unit,
+    onUpdateUpdater: () -> Unit,
     onPickApk: (android.net.Uri) -> Unit,
     onDownloadLatest: () -> Unit,
     onToggleScan: () -> Unit,
@@ -104,6 +106,50 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ConnectionBanner(state)
+
+            Card(
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text("更新器版本", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (state.updaterAvailable) {
+                            "有新版 " + (state.updaterLatestVersion ?: "") + " 可更新"
+                        } else if (state.updaterChecking) {
+                            "正在檢查更新…"
+                        } else {
+                            "目前沒有偵測到更新"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = onCheckUpdater,
+                            enabled = !state.updaterChecking && !state.updaterDownloading,
+                            shape = CircleShape,
+                        ) {
+                            Text(if (state.updaterChecking) "檢查中…" else "檢查更新器")
+                        }
+                        Button(
+                            onClick = onUpdateUpdater,
+                            enabled = state.updaterAvailable && !state.updaterDownloading,
+                            shape = CircleShape,
+                        ) {
+                            if (state.updaterDownloading) {
+                                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Text(if (state.updaterDownloading) "下載中…" else "更新更新器")
+                        }
+                    }
+                }
+            }
 
             StepCard(step = 1, title = "取得最新版錶盤") {
                 Button(
