@@ -47,3 +47,7 @@ INSTALL_WATCH.cmd
 - Xiaomi Watch 5 已開啟無線偵錯
 
 > `local.properties`、Gradle build 產物及安裝 log 不會提交到 GitHub。
+
+## Desktop shortcut
+
+Run `CREATE_DESKTOP_SHORTCUT.cmd` once. It creates a single desktop shortcut named **Xiaomi Watch 5 NeonFace**. After that, open the manager from the desktop shortcut; the project itself can remain on drive D:.
