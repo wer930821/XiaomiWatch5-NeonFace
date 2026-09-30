@@ -51,3 +51,27 @@ INSTALL_WATCH.cmd
 ## Desktop shortcut
 
 Run `CREATE_DESKTOP_SHORTCUT.cmd` once. It creates a single desktop shortcut named **Xiaomi Watch 5 NeonFace**. After that, open the manager from the desktop shortcut; the project itself can remain on drive D:.
+
+
+## 手機更新器
+
+Repository 內已加入 Android 手機端 NeonFace 更新器。它可以：
+
+- 從 GitHub Releases 下載最新版 Neon Core Blue 錶盤 APK。
+- 透過 Wear OS 無線偵錯進行配對。
+- 從手機直接連線 Xiaomi Watch 5。
+- 將最新版 APK 傳到手錶並安裝，不需要電腦。
+
+第一次啟用固定簽章前，在 Windows 執行：
+
+```powershell
+git pull
+powershell -ExecutionPolicy Bypass -File .\SETUP_RELEASE_SIGNING.ps1
+```
+
+完成 GitHub Actions secrets 後，GitHub Actions 會產生：
+
+- `NeonCoreBlue-watch.apk`
+- `NeonFace-Updater.apk`
+
+並放到固定的 `latest` Release。手機更新器會直接下載這個最新版錶盤。
