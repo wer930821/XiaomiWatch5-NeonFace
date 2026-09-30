@@ -26,7 +26,7 @@ stars = [
     for _ in range(45)
 ]
 
-frames = []
+rgb_frames = []
 
 for fi in range(FRAME_COUNT):
     img = Image.new("RGBA", (W, H), (2, 5, 12, 255))
@@ -172,13 +172,28 @@ for fi in range(FRAME_COUNT):
     glass = glass.filter(ImageFilter.GaussianBlur(4))
     img = Image.alpha_composite(img, glass)
 
-    frames.append(
-        img.convert(
-            "P",
-            palette=Image.Palette.ADAPTIVE,
-            colors=128,
-        )
+    rgb_frames.append(img.convert("RGB"))
+
+# Build ONE shared palette for every frame.
+# Some Wear OS GIF decoders misread per-frame/local palettes and show
+# psychedelic red/green/blue colors. A global palette avoids that.
+sample_w = W * len(rgb_frames)
+palette_sample = Image.new("RGB", (sample_w, H))
+for i, frame in enumerate(rgb_frames):
+    palette_sample.paste(frame, (i * W, 0))
+
+palette_img = palette_sample.resize(
+    (max(1, W * 3), max(1, H // 3)),
+    Image.Resampling.BILINEAR,
+).convert("P", palette=Image.Palette.ADAPTIVE, colors=128)
+
+frames = [
+    frame.quantize(
+        palette=palette_img,
+        dither=Image.Dither.NONE,
     )
+    for frame in rgb_frames
+]
 
 frames[0].save(
     gif_path,
@@ -186,10 +201,11 @@ frames[0].save(
     append_images=frames[1:],
     duration=DURATION_MS,
     loop=0,
-    optimize=True,
-    disposal=2,
+    optimize=False,
+    disposal=1,
 )
-frames[0].convert("RGB").save(thumb_path, optimize=True)
+
+rgb_frames[0].save(thumb_path, optimize=True)
 
 print(gif_path)
 print(thumb_path)
