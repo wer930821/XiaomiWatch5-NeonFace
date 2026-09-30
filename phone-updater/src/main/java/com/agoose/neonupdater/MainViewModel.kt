@@ -3,6 +3,10 @@ package com.agoose.neonupdater
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.content.Intent
+import android.provider.Settings
+import androidx.core.content.FileProvider
+import org.json.JSONObject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.agoose.neonupdater.adb.AdbDiscovery
@@ -45,6 +49,11 @@ data class UiState(
     val progress: Float? = null,
     val log: List<String> = emptyList(),
     val localIp: String? = null,
+    val updaterChecking: Boolean = false,
+    val updaterAvailable: Boolean = false,
+    val updaterDownloading: Boolean = false,
+    val updaterLatestVersion: String? = null,
+    val updaterLatestCode: Int? = null,
 ) {
     val canConnect: Boolean get() = host.isNotBlank() && port.toIntOrNull() != null && !busy
     val canInstall: Boolean get() = connected && apk != null && !busy
@@ -68,6 +77,113 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         log("Ready. Turn on Wireless debugging on the watch to begin.")
+        checkUpdaterUpdate(silent = true)
+    }
+
+    // ---------------------------------------------------------------- self update
+
+    fun checkUpdaterUpdate(silent: Boolean = false) {
+        if (_state.value.updaterChecking || _state.value.updaterDownloading) return
+        viewModelScope.launch {
+            _state.update { it.copy(updaterChecking = true) }
+            if (!silent) log("正在檢查 NeonFace 更新器版本…")
+            try {
+                val info = withContext(Dispatchers.IO) {
+                    val url = URL(UPDATER_INFO_URL + "?t=" + System.currentTimeMillis())
+                    val connection = (url.openConnection() as HttpURLConnection).apply {
+                        instanceFollowRedirects = true
+                        connectTimeout = 15_000
+                        readTimeout = 30_000
+                        requestMethod = "GET"
+                        setRequestProperty("Cache-Control", "no-cache")
+                    }
+                    connection.connect()
+                    if (connection.responseCode !in 200..299) {
+                        throw IOException("HTTP " + connection.responseCode)
+                    }
+                    val body = connection.inputStream.bufferedReader().use { it.readText() }
+                    connection.disconnect()
+                    val json = JSONObject(body)
+                    Pair(json.getInt("updaterVersionCode"), json.optString("updaterVersionName"))
+                }
+                val currentCode = BuildConfig.VERSION_CODE
+                val available = info.first > currentCode
+                _state.update {
+                    it.copy(
+                        updaterAvailable = available,
+                        updaterLatestCode = info.first,
+                        updaterLatestVersion = info.second.ifBlank { null },
+                    )
+                }
+                if (!silent) {
+                    log(
+                        if (available) "發現更新器新版 ${info.second}（${info.first}），目前版本 ${BuildConfig.VERSION_NAME}（$currentCode）。"
+                        else "更新器已是最新版 ${BuildConfig.VERSION_NAME}（$currentCode）。"
+                    )
+                }
+            } catch (t: Throwable) {
+                if (!silent) log("檢查更新器失敗：" + (t.message ?: t.javaClass.simpleName))
+            } finally {
+                _state.update { it.copy(updaterChecking = false) }
+            }
+        }
+    }
+
+    fun updateUpdater() {
+        if (_state.value.updaterDownloading || _state.value.busy) return
+        viewModelScope.launch {
+            _state.update { it.copy(updaterDownloading = true) }
+            log("正在下載新版 NeonFace 更新器…")
+            try {
+                val apkFile = withContext(Dispatchers.IO) {
+                    val dir = File(getApplication<Application>().filesDir, "updates").apply { mkdirs() }
+                    val target = File(dir, "NeonFace-Updater.apk")
+                    val connection = (URL(UPDATER_APK_URL).openConnection() as HttpURLConnection).apply {
+                        instanceFollowRedirects = true
+                        connectTimeout = 15_000
+                        readTimeout = 60_000
+                        requestMethod = "GET"
+                    }
+                    connection.connect()
+                    if (connection.responseCode !in 200..299) {
+                        throw IOException("下載失敗：HTTP " + connection.responseCode)
+                    }
+                    connection.inputStream.use { input ->
+                        target.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    connection.disconnect()
+                    target
+                }
+                launchUpdaterInstaller(apkFile)
+            } catch (t: Throwable) {
+                log("更新更新器失敗：" + (t.message ?: t.javaClass.simpleName))
+            } finally {
+                _state.update { it.copy(updaterDownloading = false) }
+            }
+        }
+    }
+
+    private fun launchUpdaterInstaller(apkFile: File) {
+        val app = getApplication<Application>()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O &&
+            !app.packageManager.canRequestPackageInstalls()
+        ) {
+            log("請允許「安裝未知應用程式」，允許後回到更新器再按一次更新。")
+            val intent = Intent(
+                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:" + app.packageName)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            app.startActivity(intent)
+            return
+        }
+
+        val uri = FileProvider.getUriForFile(app, app.packageName + ".fileprovider", apkFile)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        log("已下載新版，正在開啟 Android 安裝畫面…")
+        app.startActivity(intent)
     }
 
     // ---------------------------------------------------------------- APK
@@ -301,6 +417,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_HOST = "host"
         private const val KEY_PORT = "port"
         private const val LATEST_APK_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonCoreBlue-watch.apk"
+        private const val UPDATER_APK_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk"
+        private const val UPDATER_INFO_URL = "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/update-info.json"
     }
 }
 
