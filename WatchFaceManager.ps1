@@ -22,21 +22,19 @@ function Log([string]$msg) {
 }
 
 function Run([string]$file,[string[]]$args) {
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = $file
-    $psi.WorkingDirectory = $repoRoot
-    $psi.UseShellExecute = $false
-    $psi.RedirectStandardOutput = $true
-    $psi.RedirectStandardError = $true
-    $psi.CreateNoWindow = $true
-    foreach ($a in $args) { [void]$psi.ArgumentList.Add($a) }
-    $p = New-Object System.Diagnostics.Process
-    $p.StartInfo = $psi
-    [void]$p.Start()
-    $out = $p.StandardOutput.ReadToEnd()
-    $err = $p.StandardError.ReadToEnd()
-    $p.WaitForExit()
-    [pscustomobject]@{Code=$p.ExitCode;Out=$out;Err=$err}
+    try {
+        Push-Location $repoRoot
+        $lines = & $file @args 2>&1
+        $code = $LASTEXITCODE
+        $text = ($lines | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+        [pscustomobject]@{Code=$code;Out=$text;Err=''}
+    }
+    catch {
+        [pscustomobject]@{Code=1;Out='';Err=$_.Exception.Message}
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 function Watch-Status {
