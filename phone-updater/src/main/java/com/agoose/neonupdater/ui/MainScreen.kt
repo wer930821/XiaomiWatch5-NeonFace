@@ -67,6 +67,7 @@ fun MainScreen(
     state: UiState,
     onCheckUpdater: () -> Unit,
     onUpdateUpdater: () -> Unit,
+    onDismissUpdater: () -> Unit,
     onPickApk: (android.net.Uri) -> Unit,
     onDownloadLatest: () -> Unit,
     onDownloadCyber: () -> Unit,
@@ -356,6 +357,35 @@ fun MainScreen(
             LogCard(state.log)
             Spacer(Modifier.height(24.dp))
         }
+    }
+
+    if (state.showUpdaterDialog && state.updaterAvailable) {
+        AlertDialog(
+            onDismissRequest = onDismissUpdater,
+            title = { Text("NeonFace 有新版") },
+            text = {
+                Text(
+                    "發現新版 " + (state.updaterLatestVersion ?: "") +
+                        "。建議先更新更新器，再安裝最新錶盤。"
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDismissUpdater()
+                        onUpdateUpdater()
+                    },
+                    enabled = !state.updaterDownloading,
+                ) {
+                    Text("立即更新")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissUpdater) {
+                    Text("稍後")
+                }
+            },
+        )
     }
 
     if (state.showPairDialog) {

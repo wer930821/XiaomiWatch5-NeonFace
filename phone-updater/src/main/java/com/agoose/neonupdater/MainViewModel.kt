@@ -54,6 +54,7 @@ data class UiState(
     val updaterDownloading: Boolean = false,
     val updaterLatestVersion: String? = null,
     val updaterLatestCode: Int? = null,
+    val showUpdaterDialog: Boolean = false,
 ) {
     val canConnect: Boolean get() = host.isNotBlank() && port.toIntOrNull() != null && !busy
     val canInstall: Boolean get() = connected && apk != null && !busy
@@ -117,6 +118,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         updaterAvailable = available,
                         updaterLatestCode = info.first,
                         updaterLatestVersion = info.second.ifBlank { null },
+                        showUpdaterDialog = available,
                     )
                 }
                 if (available) {
@@ -142,6 +144,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun dismissUpdaterDialog() = _state.update { it.copy(showUpdaterDialog = false) }
 
     fun updateUpdater() {
         if (_state.value.updaterDownloading || _state.value.busy) return

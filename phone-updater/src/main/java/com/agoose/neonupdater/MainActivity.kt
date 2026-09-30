@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     state = state,
                     onCheckUpdater = { vm.checkUpdaterUpdate(silent = false) },
                     onUpdateUpdater = vm::updateUpdater,
+                    onDismissUpdater = vm::dismissUpdaterDialog,
                     onPickApk = vm::onApkPicked,
                     onDownloadLatest = vm::downloadLatest,
                     onDownloadCyber = vm::downloadCyber,
