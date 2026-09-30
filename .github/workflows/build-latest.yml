@@ -91,7 +91,10 @@ jobs:
           {
             "updaterVersionCode": ${VERSION_CODE},
             "updaterVersionName": "${VERSION_NAME}",
-            "updaterApkUrl": "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk"
+            "updaterApkUrl": "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk",
+            "cyberVersionCode": ${VERSION_CODE},
+            "cyberVersionName": "${VERSION_NAME}",
+            "cyberApkUrl": "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/CyberNeonCity-watch.apk"
           }
           EOF
 

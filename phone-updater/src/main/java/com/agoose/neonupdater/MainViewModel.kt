@@ -104,7 +104,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val body = connection.inputStream.bufferedReader().use { it.readText() }
                     connection.disconnect()
                     val json = JSONObject(body)
-                    Pair(json.getInt("updaterVersionCode"), json.optString("updaterVersionName"))
+                    Triple(
+                        json.getInt("updaterVersionCode"),
+                        json.optString("updaterVersionName"),
+                        Pair(json.optInt("cyberVersionCode", 0), json.optString("cyberVersionName"))
+                    )
                 }
                 val currentCode = BuildConfig.VERSION_CODE
                 val available = info.first > currentCode
@@ -117,6 +121,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 if (available) {
                     UpdateNotifier.notifyUpdaterUpdate(getApplication(), info.second.ifBlank { null })
+                }
+                if (info.third.first > 0) {
+                    UpdateNotifier.notifyCyberWatchFace(
+                        getApplication(),
+                        info.third.first,
+                        info.third.second.ifBlank { null },
+                    )
                 }
                 if (!silent) {
                     log(

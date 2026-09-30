@@ -34,9 +34,14 @@ class UpdateCheckWorker(
             val json = JSONObject(body)
             val latestCode = json.getInt("updaterVersionCode")
             val latestName = json.optString("updaterVersionName")
+            val cyberCode = json.optInt("cyberVersionCode", 0)
+            val cyberName = json.optString("cyberVersionName")
 
             if (latestCode > BuildConfig.VERSION_CODE) {
                 UpdateNotifier.notifyUpdaterUpdate(applicationContext, latestName)
+            }
+            if (cyberCode > 0) {
+                UpdateNotifier.notifyCyberWatchFace(applicationContext, cyberCode, cyberName)
             }
             Result.success()
         } catch (_: Throwable) {
