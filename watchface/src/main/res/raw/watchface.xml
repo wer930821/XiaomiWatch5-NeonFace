@@ -156,6 +156,19 @@
             </RoundRectangle>
         </PartDraw>
 
+        <!-- Lower info glass panels keep data readable over scenery -->
+        <PartDraw x="0" y="0" width="480" height="480">
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+            <RoundRectangle x="34" y="332" width="190" height="90" cornerRadius="24">
+                <Fill color="#66050A0F" />
+                <Stroke color="#3020DCEB" width="1" />
+            </RoundRectangle>
+            <RoundRectangle x="256" y="332" width="190" height="90" cornerRadius="24">
+                <Fill color="#66050A0F" />
+                <Stroke color="#303C6B78" width="1" />
+            </RoundRectangle>
+        </PartDraw>
+
         <!-- Steps -->
         <Group x="42" y="338" width="175" height="92">
             <Variant mode="AMBIENT" target="alpha" value="0" />
