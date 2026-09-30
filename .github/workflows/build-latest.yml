@@ -23,6 +23,8 @@ jobs:
     env:
       VERSION_CODE: ${{ github.run_number }}
       VERSION_NAME: "1.0.${{ github.run_number }}"
+      UPDATER_VERSION_CODE: 1000
+      UPDATER_VERSION_NAME: "2.0.0"
       RELEASE_STORE_FILE: ${{ github.workspace }}/release-key.jks
       RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
       RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
@@ -89,8 +91,8 @@ jobs:
           cp phone-updater/build/outputs/apk/release/phone-updater-release.apk NeonFace-Updater.apk
           cat > update-info.json <<EOF
           {
-            "updaterVersionCode": ${VERSION_CODE},
-            "updaterVersionName": "${VERSION_NAME}",
+            "updaterVersionCode": ${UPDATER_VERSION_CODE},
+            "updaterVersionName": "${UPDATER_VERSION_NAME}",
             "updaterApkUrl": "https://github.com/wer930821/XiaomiWatch5-NeonFace/releases/download/latest/NeonFace-Updater.apk",
             "cyberVersionCode": ${VERSION_CODE},
             "cyberVersionName": "${VERSION_NAME}",

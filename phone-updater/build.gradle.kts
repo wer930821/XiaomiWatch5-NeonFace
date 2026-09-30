@@ -21,8 +21,8 @@ android {
         applicationId = "com.agoose.neonupdater"
         minSdk = 26
         targetSdk = 35
-        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1
-        versionName = System.getenv("VERSION_NAME") ?: "1.0.0"
+        versionCode = System.getenv("UPDATER_VERSION_CODE")?.toIntOrNull() ?: 1000
+        versionName = System.getenv("UPDATER_VERSION_NAME") ?: "2.0.0"
     }
 
     signingConfigs {
