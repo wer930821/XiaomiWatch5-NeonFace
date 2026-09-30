@@ -60,7 +60,7 @@ object ApkStager {
         if (info != null) {
             packageName = info.packageName ?: packageName
             @Suppress("DEPRECATION")
-            version = "\${info.versionName ?: "?"} (\${info.versionCode})"
+            version = "${info.versionName ?: "?"} (${info.versionCode})"
             info.applicationInfo?.let { appInfo ->
                 appInfo.sourceDir = target.absolutePath
                 appInfo.publicSourceDir = target.absolutePath
