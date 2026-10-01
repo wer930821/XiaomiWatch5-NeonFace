@@ -12,6 +12,14 @@
             <Variant mode="AMBIENT" target="alpha" value="0"/>
         </PartImage>
 
+        <!-- Animated active-mode layer; the static image above stays as a safe fallback. -->
+        <PartAnimatedImage x="0" y="0" width="480" height="480">
+            <AnimationController play="ON_VISIBLE"/>
+            <AnimatedImage resource="cyber_exact_anim" format="AGIF"/>
+            <Thumbnail resource="cyber_exact_thumb"/>
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+        </PartAnimatedImage>
+
         <!-- AMOLED fallback / AOD -->
         <PartDraw x="0" y="0" width="480" height="480" alpha="0">
             <Variant mode="AMBIENT" target="alpha" value="255" />

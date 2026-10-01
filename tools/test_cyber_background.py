@@ -52,6 +52,19 @@ class CyberBackgroundTest(unittest.TestCase):
         self.assertIn("[SECOND] * 6", values)
         self.assertIn("[SECOND] * -6", values)
 
+    def test_live_scene_has_animated_background_over_static_fallback(self) -> None:
+        root = ET.parse(WATCHFACE).getroot()
+        animated = root.find(".//PartAnimatedImage")
+        self.assertIsNotNone(animated)
+        self.assertEqual(
+            "cyber_exact_anim",
+            animated.find("AnimatedImage").attrib["resource"],
+        )
+        self.assertEqual(
+            "cyber_exact_thumb",
+            animated.find("Thumbnail").attrib["resource"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
