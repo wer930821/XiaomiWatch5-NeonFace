@@ -75,6 +75,21 @@ class CyberBackgroundTest(unittest.TestCase):
             animated.find("Thumbnail").attrib["resource"],
         )
 
+    def test_weather_slot_has_a_system_default_and_empty_fallback(self) -> None:
+        """Weather must display without users manually configuring the slot."""
+        root = ET.parse(WATCHFACE).getroot()
+        weather = root.find(".//ComplicationSlot[@displayName='weather_slot']")
+        self.assertIsNotNone(weather)
+
+        policy = weather.find("DefaultProviderPolicy")
+        self.assertIsNotNone(policy)
+        self.assertEqual("WEATHER", policy.attrib.get("defaultSystemProvider"))
+        self.assertEqual("SHORT_TEXT", policy.attrib.get("defaultSystemProviderType"))
+
+        empty = weather.find("Complication[@type='EMPTY']")
+        self.assertIsNotNone(empty)
+        self.assertIn("天氣", "".join(empty.itertext()))
+
 
 if __name__ == "__main__":
     unittest.main()

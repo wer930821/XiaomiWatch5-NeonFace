@@ -50,6 +50,7 @@
         <!-- Top-left weather, matching the concept card -->
         <ComplicationSlot slotId="11" displayName="weather_slot"
             supportedTypes="SHORT_TEXT EMPTY" x="54" y="64" width="166" height="72">
+            <DefaultProviderPolicy defaultSystemProvider="WEATHER" defaultSystemProviderType="SHORT_TEXT" />
             <BoundingOval x="0" y="0" width="166" height="72" />
             <Complication type="SHORT_TEXT">
                 <PartDraw x="0" y="0" width="166" height="72">
