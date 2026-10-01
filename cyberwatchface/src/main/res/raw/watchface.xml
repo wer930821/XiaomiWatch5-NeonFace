@@ -5,14 +5,12 @@
     <Metadata key="STEP_GOAL" value="10000" />
 
     <Scene>
-        <!-- Exact concept artwork rendered through WFF AGIF, the same image path
-             that already works reliably on this Xiaomi Watch 5. -->
-        <PartAnimatedImage x="0" y="0" width="480" height="480">
-            <AnimationController play="ON_VISIBLE" repeat="TRUE"/>
-            <AnimatedImage resource="cyber_exact_anim" format="AGIF"/>
-            <Thumbnail resource="cyber_exact_thumb"/>
+        <!-- Xiaomi Watch 5 does not render this AGIF layer reliably. Use the
+             matching static source image for the visible face instead. -->
+        <PartImage x="0" y="0" width="480" height="480">
+            <Image resource="cyber_concept_bg"/>
             <Variant mode="AMBIENT" target="alpha" value="0"/>
-        </PartAnimatedImage>
+        </PartImage>
 
         <!-- AMOLED fallback / AOD -->
         <PartDraw x="0" y="0" width="480" height="480">
