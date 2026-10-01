@@ -13,7 +13,7 @@
         </PartImage>
 
         <!-- AMOLED fallback / AOD -->
-        <PartDraw x="0" y="0" width="480" height="480">
+        <PartDraw x="0" y="0" width="480" height="480" alpha="0">
             <Variant mode="AMBIENT" target="alpha" value="255" />
             <Ellipse x="0" y="0" width="480" height="480"><Fill color="#000000" /></Ellipse>
             <Ellipse x="18" y="18" width="444" height="444"><Stroke color="#4A1675" width="2" /></Ellipse>

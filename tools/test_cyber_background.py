@@ -30,6 +30,12 @@ class CyberBackgroundTest(unittest.TestCase):
             image.load()
             self.assertEqual((480, 480), image.size)
 
+    def test_ambient_fallback_does_not_cover_the_visible_background(self) -> None:
+        root = ET.parse(WATCHFACE).getroot()
+        fallback = root.find(".//PartDraw")
+        self.assertIsNotNone(fallback)
+        self.assertEqual("0", fallback.attrib.get("alpha"))
+
 
 if __name__ == "__main__":
     unittest.main()
