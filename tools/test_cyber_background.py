@@ -4,6 +4,8 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
+from PIL import Image
+
 
 ROOT = Path(__file__).resolve().parents[1]
 WATCHFACE = ROOT / "cyberwatchface/src/main/res/raw/watchface.xml"
@@ -22,7 +24,11 @@ class CyberBackgroundTest(unittest.TestCase):
         }
 
         self.assertIn("cyber_concept_bg", resources)
-        self.assertTrue((DRAWABLE / "cyber_concept_bg.jpg").is_file())
+        background = DRAWABLE / "cyber_concept_bg.jpg"
+        self.assertTrue(background.is_file())
+        with Image.open(background) as image:
+            image.load()
+            self.assertEqual((480, 480), image.size)
 
 
 if __name__ == "__main__":
