@@ -5,11 +5,13 @@
     <Metadata key="STEP_GOAL" value="10000" />
 
     <Scene>
-        <!-- Use the actual approved cyberpunk concept artwork as the visual base. -->
-        <PartImage x="0" y="0" width="480" height="480">
-            <Image resource="cyber_concept_bg_png" />
-            <Variant mode="AMBIENT" target="alpha" value="0" />
-        </PartImage>
+        <!-- Exact concept artwork rendered through WFF AGIF, the same image path
+             that already works reliably on this Xiaomi Watch 5. -->
+        <PartAnimatedImage x="0" y="0" width="480" height="480">
+            <AnimationController play="ON_VISIBLE" repeat="TRUE"/>
+            <AnimatedImage resource="cyber_exact_anim" format="AGIF"/>
+            <Variant mode="AMBIENT" target="alpha" value="0"/>
+        </PartAnimatedImage>
 
         <!-- AMOLED fallback / AOD -->
         <PartDraw x="0" y="0" width="480" height="480">

@@ -63,17 +63,6 @@ jobs:
       - name: Install Pillow
         run: python -m pip install --upgrade pillow
 
-      - name: Convert Cyber artwork to PNG
-        shell: bash
-        run: |
-          python - <<'PY'
-          from PIL import Image, ImageFile
-          ImageFile.LOAD_TRUNCATED_IMAGES = True
-          base = "cyberwatchface/src/main/res/drawable"
-          Image.open(f"{base}/cyber_concept_bg.jpg").convert("RGB").save(f"{base}/cyber_concept_bg_png.png", optimize=True)
-          Image.open(f"{base}/cyber_preview.jpg").convert("RGB").save(f"{base}/cyber_preview_png.png", optimize=True)
-          PY
-
       - name: Generate animated watch background
         run: python tools/generate_dynamic_background.py
 
