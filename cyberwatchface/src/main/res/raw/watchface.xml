@@ -47,39 +47,48 @@
             </PartDraw>
         </Group>
 
-        <!-- Top-left weather, matching the concept card -->
-        <ComplicationSlot slotId="11" displayName="weather_slot"
-            supportedTypes="SHORT_TEXT EMPTY" x="54" y="64" width="166" height="72">
-            <DefaultProviderPolicy defaultSystemProvider="WEATHER" defaultSystemProviderType="SHORT_TEXT" />
-            <BoundingOval x="0" y="0" width="166" height="72" />
-            <Complication type="SHORT_TEXT">
-                <PartDraw x="0" y="0" width="166" height="72">
-                    <Rectangle x="7" y="4" width="152" height="64"><Fill color="#B4090D20" /></Rectangle>
-                    <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
-                    <Line startX="0" startY="12" endX="0" endY="60"><Stroke color="#00DFFF" width="2" /></Line>
-                    <Line startX="0" startY="60" endX="12" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
-                    <Line startX="12" startY="72" endX="142" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
-                    <Line startX="142" startY="0" endX="166" endY="18"><Stroke color="#A34CFF" width="2" /></Line>
-                    <Line startX="166" startY="18" endX="166" endY="54"><Stroke color="#A34CFF" width="2" /></Line>
-                    <Line startX="166" startY="54" endX="148" endY="72"><Stroke color="#A34CFF" width="2" /></Line>
-                </PartDraw>
-                <PartText x="8" y="8" width="150" height="56">
-                    <Text align="CENTER" verticalAlign="CENTER">
-                        <Font family="SYNC_TO_DEVICE" size="25" weight="BOLD" color="#DDFBFF">
-                            <Template><![CDATA[%s]]><Parameter expression="[COMPLICATION.TEXT]" /></Template>
-                        </Font>
-                    </Text>
-                </PartText>
-            </Complication>
-            <Complication type="EMPTY">
-                <PartText x="8" y="8" width="150" height="56">
-                    <Text align="CENTER" verticalAlign="CENTER">
-                        <Font family="SYNC_TO_DEVICE" size="18" color="#6DEAFF"><![CDATA[天氣]]></Font>
-                    </Text>
-                </PartText>
-            </Complication>
+        <!-- Native weather is WFF v2 data, not a complication provider. -->
+        <Group x="54" y="64" width="166" height="72">
             <Variant mode="AMBIENT" target="alpha" value="0" />
-        </ComplicationSlot>
+            <PartDraw x="0" y="0" width="166" height="72">
+                <Rectangle x="7" y="4" width="152" height="64"><Fill color="#B4090D20" /></Rectangle>
+                <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="0" startY="12" endX="0" endY="60"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="0" startY="60" endX="12" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="12" startY="72" endX="142" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="142" startY="0" endX="166" endY="18"><Stroke color="#A34CFF" width="2" /></Line>
+                <Line startX="166" startY="18" endX="166" endY="54"><Stroke color="#A34CFF" width="2" /></Line>
+                <Line startX="166" startY="54" endX="148" endY="72"><Stroke color="#A34CFF" width="2" /></Line>
+            </PartDraw>
+            <Condition>
+                <Expressions><Expression name="weather_available">[WEATHER.IS_AVAILABLE]</Expression></Expressions>
+                <Compare expression="weather_available">
+                    <Group x="0" y="0" width="166" height="72">
+                        <PartText x="8" y="7" width="150" height="34">
+                            <Text align="CENTER" verticalAlign="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="29" weight="BOLD" color="#DDFBFF">
+                                    <Template><![CDATA[%d°]]><Parameter expression="[WEATHER.TEMPERATURE]" /></Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                        <PartText x="8" y="39" width="150" height="25">
+                            <Text align="CENTER" verticalAlign="CENTER">
+                                <Font family="SYNC_TO_DEVICE" size="16" color="#6DEAFF">
+                                    <Template><![CDATA[%s]]><Parameter expression="[WEATHER.CONDITION_NAME]" /></Template>
+                                </Font>
+                            </Text>
+                        </PartText>
+                    </Group>
+                </Compare>
+                <Default>
+                    <PartText x="8" y="8" width="150" height="56">
+                        <Text align="CENTER" verticalAlign="CENTER">
+                            <Font family="SYNC_TO_DEVICE" size="18" color="#6DEAFF"><![CDATA[天氣讀取中]]></Font>
+                        </Text>
+                    </PartText>
+                </Default>
+            </Condition>
+        </Group>
 
         <!-- Top-right battery -->
         <Group x="260" y="64" width="166" height="72">

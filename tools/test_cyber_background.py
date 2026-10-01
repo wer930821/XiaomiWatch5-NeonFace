@@ -76,19 +76,19 @@ class CyberBackgroundTest(unittest.TestCase):
         )
 
     def test_weather_slot_has_a_system_default_and_empty_fallback(self) -> None:
-        """Weather must display without users manually configuring the slot."""
+        """Weather must come from WFF's native weather data source, not a slot."""
         root = ET.parse(WATCHFACE).getroot()
-        weather = root.find(".//ComplicationSlot[@displayName='weather_slot']")
-        self.assertIsNotNone(weather)
+        self.assertIsNone(root.find(".//ComplicationSlot[@displayName='weather_slot']"))
+        source = WATCHFACE.read_text()
+        self.assertIn("[WEATHER.IS_AVAILABLE]", source)
+        self.assertIn("[WEATHER.TEMPERATURE]", source)
+        self.assertIn("[WEATHER.CONDITION_NAME]", source)
 
-        policy = weather.find("DefaultProviderPolicy")
-        self.assertIsNotNone(policy)
-        self.assertEqual("WEATHER", policy.attrib.get("defaultSystemProvider"))
-        self.assertEqual("SHORT_TEXT", policy.attrib.get("defaultSystemProviderType"))
-
-        empty = weather.find("Complication[@type='EMPTY']")
-        self.assertIsNotNone(empty)
-        self.assertIn("天氣", "".join(empty.itertext()))
+    def test_watch_face_uses_wff_v2_for_native_weather(self) -> None:
+        manifest = ROOT / "cyberwatchface/src/main/AndroidManifest.xml"
+        build = ROOT / "cyberwatchface/build.gradle.kts"
+        self.assertIn('android:value="2"', manifest.read_text())
+        self.assertIn("minSdk = 34", build.read_text())
 
 
 if __name__ == "__main__":
