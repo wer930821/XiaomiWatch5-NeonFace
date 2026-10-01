@@ -36,6 +36,15 @@ class CyberBackgroundTest(unittest.TestCase):
         self.assertIsNotNone(fallback)
         self.assertEqual("0", fallback.attrib.get("alpha"))
 
+    def test_live_hud_uses_large_time_and_tight_tech_frames(self) -> None:
+        root = ET.parse(WATCHFACE).getroot()
+        time_fonts = root.findall(".//DigitalClock/TimeText/Font")
+        self.assertEqual(["108", "108"], [font.attrib["size"] for font in time_fonts])
+
+        frames = root.findall(".//RoundRectangle")
+        self.assertTrue(frames)
+        self.assertTrue(all(int(frame.attrib["cornerRadius"]) <= 8 for frame in frames))
+
 
 if __name__ == "__main__":
     unittest.main()
