@@ -29,6 +29,16 @@
             </PartDraw>
         </Group>
 
+        <!-- Counter-rotating cyan satellite: native WFF motion, no AGIF required. -->
+        <Group x="0" y="0" width="480" height="480" pivotX="0.5" pivotY="0.5">
+            <Transform target="angle" value="[SECOND] * -6" />
+            <Variant mode="AMBIENT" target="alpha" value="0" />
+            <PartDraw x="231" y="44" width="18" height="18">
+                <Ellipse x="5" y="5" width="8" height="8"><Fill color="#68F4FF" /></Ellipse>
+                <Ellipse x="1" y="1" width="16" height="16"><Stroke color="#FF55DC" width="1" /></Ellipse>
+            </PartDraw>
+        </Group>
+
         <!-- Top-left weather, matching the concept card -->
         <ComplicationSlot slotId="11" displayName="weather_slot"
             supportedTypes="SHORT_TEXT EMPTY" x="54" y="64" width="166" height="72">

@@ -45,6 +45,13 @@ class CyberBackgroundTest(unittest.TestCase):
         self.assertTrue(frames)
         self.assertTrue(all(int(frame.attrib["cornerRadius"]) <= 8 for frame in frames))
 
+    def test_live_scene_has_two_native_second_orbits(self) -> None:
+        root = ET.parse(WATCHFACE).getroot()
+        transforms = root.findall(".//Group/Transform[@target='angle']")
+        values = {transform.attrib["value"] for transform in transforms}
+        self.assertIn("[SECOND] * 6", values)
+        self.assertIn("[SECOND] * -6", values)
+
 
 if __name__ == "__main__":
     unittest.main()
