@@ -7,7 +7,7 @@
     <Scene>
         <!-- Use the actual approved cyberpunk concept artwork as the visual base. -->
         <PartImage x="0" y="0" width="480" height="480">
-            <Image resource="cyber_concept_bg" />
+            <Image resource="cyber_concept_bg_png" />
             <Variant mode="AMBIENT" target="alpha" value="0" />
         </PartImage>
 
