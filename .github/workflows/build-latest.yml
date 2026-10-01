@@ -23,8 +23,8 @@ jobs:
     env:
       VERSION_CODE: ${{ github.run_number }}
       VERSION_NAME: "1.0.${{ github.run_number }}"
-      UPDATER_VERSION_CODE: 1000
-      UPDATER_VERSION_NAME: "2.0.0"
+      UPDATER_VERSION_CODE: 1001
+      UPDATER_VERSION_NAME: "2.0.1"
       RELEASE_STORE_FILE: ${{ github.workspace }}/release-key.jks
       RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
       RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
