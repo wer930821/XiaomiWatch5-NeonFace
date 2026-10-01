@@ -66,6 +66,51 @@ jobs:
       - name: Generate animated watch background
         run: python tools/generate_dynamic_background.py
 
+      - name: Generate high quality Cyber background
+        shell: bash
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageFile, ImageEnhance, ImageFilter
+          import os
+
+          ImageFile.LOAD_TRUNCATED_IMAGES = True
+          base = "cyberwatchface/src/main/res/drawable"
+          src_path = f"{base}/cyber_concept_bg.jpg"
+          gif_path = f"{base}/cyber_exact_anim.gif"
+          thumb_path = f"{base}/cyber_exact_thumb.png"
+
+          src = Image.open(src_path).convert("RGB").resize((480, 480), Image.Resampling.LANCZOS)
+
+          frames = []
+          for brightness, contrast in [(1.00, 1.10), (1.04, 1.14), (0.99, 1.08), (1.025, 1.12)]:
+              frame = ImageEnhance.Brightness(src).enhance(brightness)
+              frame = ImageEnhance.Contrast(frame).enhance(contrast)
+              glow = frame.filter(ImageFilter.GaussianBlur(0.8))
+              frame = Image.blend(frame, glow, 0.03)
+              frames.append(frame)
+
+          palette = frames[0].convert("P", palette=Image.Palette.ADAPTIVE, colors=256)
+          pframes = [palette]
+          for frame in frames[1:]:
+              pframes.append(frame.quantize(palette=palette, dither=Image.Dither.FLOYDSTEINBERG))
+
+          pframes[0].save(
+              gif_path,
+              save_all=True,
+              append_images=pframes[1:],
+              duration=320,
+              loop=0,
+              optimize=False,
+              disposal=1,
+          )
+          src.save(thumb_path, optimize=True)
+
+          size = os.path.getsize(gif_path)
+          print(f"Cyber AGIF size: {size} bytes")
+          if size < 50000:
+              raise RuntimeError(f"Cyber AGIF unexpectedly small: {size} bytes")
+          PY
+
       - name: Restore release keystore
         if: env.RELEASE_KEYSTORE_BASE64 != ''
         shell: bash
