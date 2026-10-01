@@ -452,17 +452,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             log("Pushing ${apk.fileName} (${apk.sizeText})…")
-            _state.update { it.copy(progress = 0f) }
+            _state.update { it.copy(progress = 0.03f, busyLabel = "正在傳送到手錶…") }
             AdbTransfer.push(manager, File(apk.path), remotePath) { sent, total ->
-                if (total > 0) _state.update { it.copy(progress = (sent.toFloat() / total)) }
+                if (total > 0) {
+                    // Transfer occupies 5–80% of the visible install progress.
+                    val transferFraction = (sent.toFloat() / total).coerceIn(0f, 1f)
+                    val visibleProgress = 0.05f + (transferFraction * 0.75f)
+                    _state.update {
+                        it.copy(
+                            progress = visibleProgress,
+                            busyLabel = "正在傳送到手錶… ${(transferFraction * 100).toInt()}%"
+                        )
+                    }
+                }
             }
-            _state.update { it.copy(progress = null, busyLabel = "Installing on watch…") }
+            _state.update { it.copy(progress = 0.85f, busyLabel = "正在手錶上安裝…") }
             log("Transfer complete. Running pm install on the watch…")
 
             val output = AdbTransfer.shell(manager, "pm install -r -t -d $remotePath").trim()
             runCatching { AdbTransfer.shell(manager, "rm -f $remotePath") }
 
             if (output.contains("Success", ignoreCase = true)) {
+                _state.update { it.copy(progress = 1f, busyLabel = "安裝完成") }
                 log("✓ ${apk.label} installed on the watch.")
 
                 if (apk.packageName == "com.agoose.xiaomiwatch5.cyberneoncity") {
@@ -481,6 +492,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     ).trim()
                     log("Wear OS 回應：" + setFace.ifBlank { "已送出切換指令" })
                 }
+                // Keep 100% visible briefly so the user can see the bar complete.
+                Thread.sleep(600)
             } else {
                 throw IOException(output.ifBlank { "pm install returned no output" })
             }

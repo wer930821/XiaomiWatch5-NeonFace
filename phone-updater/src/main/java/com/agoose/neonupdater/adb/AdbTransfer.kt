@@ -14,7 +14,7 @@ import java.io.InputStream
 object AdbTransfer {
 
     /** adb's own sync chunk size. Also keeps every WRTE packet well below the negotiated max. */
-    private const val CHUNK = 64 * 1024
+    private const val CHUNK = 8 * 1024
 
     /** 0100644 — a regular file, rw-r--r--, same mode `adb push` uses. */
     private const val FILE_MODE = 33188
