@@ -16,6 +16,14 @@ class UpdateRefreshTest(unittest.TestCase):
         self.assertIn("updaterViewModel.checkUpdaterUpdate(silent = true)", source)
         self.assertIn("PeriodicWorkRequestBuilder<UpdateCheckWorker>(15, TimeUnit.MINUTES)", source)
 
+    def test_checks_every_minute_while_the_updater_is_visible(self) -> None:
+        source = ACTIVITY.read_text()
+        self.assertIn("private var foregroundUpdateCheckJob: Job? = null", source)
+        self.assertIn("override fun onStart()", source)
+        self.assertIn("delay(60_000)", source)
+        self.assertIn("override fun onStop()", source)
+        self.assertIn("foregroundUpdateCheckJob?.cancel()", source)
+
     def test_release_bumps_the_updater_version_for_existing_users(self) -> None:
         workflow = WORKFLOW.read_text()
         self.assertIn("UPDATER_VERSION_CODE: 1001", workflow)

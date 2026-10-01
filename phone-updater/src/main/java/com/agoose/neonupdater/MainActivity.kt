@@ -15,12 +15,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agoose.neonupdater.ui.MainScreen
 import com.agoose.neonupdater.ui.WatchPushTheme
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val updaterViewModel: MainViewModel by viewModels()
+    private var foregroundUpdateCheckJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -74,5 +80,22 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         updaterViewModel.checkUpdaterUpdate(silent = true)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        foregroundUpdateCheckJob?.cancel()
+        foregroundUpdateCheckJob = lifecycleScope.launch {
+            while (isActive) {
+                delay(60_000)
+                updaterViewModel.checkUpdaterUpdate(silent = true)
+            }
+        }
+    }
+
+    override fun onStop() {
+        foregroundUpdateCheckJob?.cancel()
+        foregroundUpdateCheckJob = null
+        super.onStop()
     }
 }
