@@ -53,10 +53,13 @@
             <BoundingOval x="0" y="0" width="166" height="72" />
             <Complication type="SHORT_TEXT">
                 <PartDraw x="0" y="0" width="166" height="72">
-                    <RoundRectangle x="0" y="0" width="166" height="72" cornerRadius="6">
-                        <Fill color="#D0050714" />
-                        <Stroke color="#00DFFF" width="2" />
-                    </RoundRectangle>
+                    <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
+                    <Line startX="0" startY="12" endX="0" endY="60"><Stroke color="#00DFFF" width="2" /></Line>
+                    <Line startX="0" startY="60" endX="12" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
+                    <Line startX="12" startY="72" endX="142" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
+                    <Line startX="142" startY="0" endX="166" endY="18"><Stroke color="#A34CFF" width="2" /></Line>
+                    <Line startX="166" startY="18" endX="166" endY="54"><Stroke color="#A34CFF" width="2" /></Line>
+                    <Line startX="166" startY="54" endX="148" endY="72"><Stroke color="#A34CFF" width="2" /></Line>
                 </PartDraw>
                 <PartText x="8" y="8" width="150" height="56">
                     <Text align="CENTER" verticalAlign="CENTER">
@@ -80,10 +83,14 @@
         <Group x="260" y="64" width="166" height="72">
             <Variant mode="AMBIENT" target="alpha" value="0" />
             <PartDraw x="0" y="0" width="166" height="72">
-                <RoundRectangle x="0" y="0" width="166" height="72" cornerRadius="6">
-                    <Fill color="#D0050714" />
-                    <Stroke color="#FF39D9" width="2" />
-                </RoundRectangle>
+                <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#FF39D9" width="2" /></Line>
+                <Line startX="0" startY="18" endX="24" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="0" startY="18" endX="0" endY="54"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="0" startY="54" endX="18" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
+                <Line startX="18" startY="72" endX="148" endY="72"><Stroke color="#FF39D9" width="2" /></Line>
+                <Line startX="142" startY="0" endX="166" endY="18"><Stroke color="#FF39D9" width="2" /></Line>
+                <Line startX="166" startY="18" endX="166" endY="60"><Stroke color="#FF39D9" width="2" /></Line>
+                <Line startX="166" startY="60" endX="154" endY="72"><Stroke color="#FF39D9" width="2" /></Line>
             </PartDraw>
             <PartText x="0" y="8" width="166" height="56">
                 <Text align="CENTER" verticalAlign="CENTER">
@@ -129,14 +136,22 @@
         <!-- Bottom cards -->
         <PartDraw x="0" y="0" width="480" height="480">
             <Variant mode="AMBIENT" target="alpha" value="0" />
-            <RoundRectangle x="36" y="352" width="190" height="88" cornerRadius="6">
-                <Fill color="#D0060917" />
-                <Stroke color="#00DFFF" width="2" />
-            </RoundRectangle>
-            <RoundRectangle x="254" y="352" width="190" height="88" cornerRadius="6">
-                <Fill color="#D0060917" />
-                <Stroke color="#FF39D9" width="2" />
-            </RoundRectangle>
+            <Line startX="50" startY="352" endX="202" endY="352"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="36" startY="366" endX="36" endY="424"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="36" startY="424" endX="52" endY="440"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="52" startY="440" endX="204" endY="440"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="202" startY="352" endX="226" endY="376"><Stroke color="#A34CFF" width="2" /></Line>
+            <Line startX="226" startY="376" endX="226" endY="426"><Stroke color="#A34CFF" width="2" /></Line>
+            <Line startX="226" startY="426" endX="212" endY="440"><Stroke color="#A34CFF" width="2" /></Line>
+
+            <Line startX="268" startY="352" endX="420" endY="352"><Stroke color="#FF39D9" width="2" /></Line>
+            <Line startX="254" startY="366" endX="254" endY="424"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="254" startY="366" endX="268" endY="352"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="254" startY="424" endX="270" endY="440"><Stroke color="#00DFFF" width="2" /></Line>
+            <Line startX="270" startY="440" endX="422" endY="440"><Stroke color="#FF39D9" width="2" /></Line>
+            <Line startX="420" startY="352" endX="444" endY="376"><Stroke color="#FF39D9" width="2" /></Line>
+            <Line startX="444" startY="376" endX="444" endY="426"><Stroke color="#FF39D9" width="2" /></Line>
+            <Line startX="444" startY="426" endX="430" endY="440"><Stroke color="#FF39D9" width="2" /></Line>
         </PartDraw>
 
         <Group x="42" y="356" width="178" height="78">

@@ -41,9 +41,8 @@ class CyberBackgroundTest(unittest.TestCase):
         time_fonts = root.findall(".//DigitalClock/TimeText/Font")
         self.assertEqual(["108", "108"], [font.attrib["size"] for font in time_fonts])
 
-        frames = root.findall(".//RoundRectangle")
-        self.assertTrue(frames)
-        self.assertTrue(all(int(frame.attrib["cornerRadius"]) <= 8 for frame in frames))
+        self.assertEqual([], root.findall(".//RoundRectangle"))
+        self.assertGreaterEqual(len(root.findall(".//Line")), 30)
 
     def test_live_scene_has_two_native_second_orbits(self) -> None:
         root = ET.parse(WATCHFACE).getroot()
