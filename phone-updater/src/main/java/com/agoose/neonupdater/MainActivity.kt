@@ -13,13 +13,15 @@ import java.util.concurrent.TimeUnit
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.agoose.neonupdater.ui.MainScreen
 import com.agoose.neonupdater.ui.WatchPushTheme
 
 class MainActivity : ComponentActivity() {
+    private val updaterViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -35,7 +37,7 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        val updateWork = PeriodicWorkRequestBuilder<UpdateCheckWorker>(6, TimeUnit.HOURS).build()
+        val updateWork = PeriodicWorkRequestBuilder<UpdateCheckWorker>(15, TimeUnit.MINUTES).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "neonface-update-check",
             ExistingPeriodicWorkPolicy.UPDATE,
@@ -43,7 +45,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             WatchPushTheme {
-                val vm: MainViewModel = viewModel()
+                val vm = updaterViewModel
                 val state by vm.state.collectAsStateWithLifecycle()
                 MainScreen(
                     state = state,
@@ -67,5 +69,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updaterViewModel.checkUpdaterUpdate(silent = true)
     }
 }
