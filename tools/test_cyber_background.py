@@ -36,13 +36,24 @@ class CyberBackgroundTest(unittest.TestCase):
         self.assertIsNotNone(fallback)
         self.assertEqual("0", fallback.attrib.get("alpha"))
 
-    def test_live_hud_uses_large_time_and_tight_tech_frames(self) -> None:
+    def test_live_hud_uses_reference_proportions_and_translucent_tech_cards(self) -> None:
         root = ET.parse(WATCHFACE).getroot()
         time_fonts = root.findall(".//DigitalClock/TimeText/Font")
-        self.assertEqual(["108", "108"], [font.attrib["size"] for font in time_fonts])
+        self.assertEqual(["100", "100"], [font.attrib["size"] for font in time_fonts])
 
         self.assertEqual([], root.findall(".//RoundRectangle"))
         self.assertGreaterEqual(len(root.findall(".//Line")), 30)
+        # The reference has dark glass inside the angular outlines, not empty boxes.
+        glass_panels = [
+            rectangle
+            for rectangle in root.findall(".//Rectangle")
+            if rectangle.find("Fill") is not None
+            and rectangle.find("Fill").attrib.get("color") == "#B4090D20"
+        ]
+        self.assertGreaterEqual(len(glass_panels), 4)
+
+        time_parts = root.findall(".//DigitalClock")
+        self.assertEqual(["56", "272"], [part.attrib["x"] for part in time_parts])
 
     def test_live_scene_has_two_native_second_orbits(self) -> None:
         root = ET.parse(WATCHFACE).getroot()

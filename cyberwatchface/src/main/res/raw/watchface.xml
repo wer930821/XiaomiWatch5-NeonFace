@@ -53,6 +53,7 @@
             <BoundingOval x="0" y="0" width="166" height="72" />
             <Complication type="SHORT_TEXT">
                 <PartDraw x="0" y="0" width="166" height="72">
+                    <Rectangle x="7" y="4" width="152" height="64"><Fill color="#B4090D20" /></Rectangle>
                     <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
                     <Line startX="0" startY="12" endX="0" endY="60"><Stroke color="#00DFFF" width="2" /></Line>
                     <Line startX="0" startY="60" endX="12" endY="72"><Stroke color="#00DFFF" width="2" /></Line>
@@ -83,6 +84,7 @@
         <Group x="260" y="64" width="166" height="72">
             <Variant mode="AMBIENT" target="alpha" value="0" />
             <PartDraw x="0" y="0" width="166" height="72">
+                <Rectangle x="7" y="4" width="152" height="64"><Fill color="#B4090D20" /></Rectangle>
                 <Line startX="12" startY="0" endX="142" endY="0"><Stroke color="#FF39D9" width="2" /></Line>
                 <Line startX="0" startY="18" endX="24" endY="0"><Stroke color="#00DFFF" width="2" /></Line>
                 <Line startX="0" startY="18" endX="0" endY="54"><Stroke color="#00DFFF" width="2" /></Line>
@@ -102,21 +104,21 @@
         </Group>
 
         <!-- Huge split-color time like the approved concept -->
-        <DigitalClock x="28" y="138" width="172" height="118">
-            <TimeText x="0" y="0" width="172" height="118" format="hh"
+        <DigitalClock x="56" y="142" width="144" height="112">
+            <TimeText x="0" y="0" width="144" height="112" format="hh"
                 hourFormat="SYNC_TO_DEVICE" align="CENTER" verticalAlign="CENTER">
-                <Font family="SYNC_TO_DEVICE" size="108" weight="BOLD" color="#52E8FF" />
+                <Font family="SYNC_TO_DEVICE" size="100" weight="BOLD" color="#52E8FF" />
             </TimeText>
         </DigitalClock>
-        <PartText x="198" y="138" width="84" height="118">
+        <PartText x="196" y="142" width="76" height="112">
             <Text align="CENTER" verticalAlign="CENTER">
-                <Font family="SYNC_TO_DEVICE" size="92" weight="BOLD" color="#D9F9FF"><![CDATA[:]]></Font>
+                <Font family="SYNC_TO_DEVICE" size="84" weight="BOLD" color="#D9F9FF"><![CDATA[:]]></Font>
             </Text>
         </PartText>
-        <DigitalClock x="280" y="138" width="172" height="118">
-            <TimeText x="0" y="0" width="172" height="118" format="mm"
+        <DigitalClock x="272" y="142" width="152" height="112">
+            <TimeText x="0" y="0" width="152" height="112" format="mm"
                 hourFormat="SYNC_TO_DEVICE" align="CENTER" verticalAlign="CENTER">
-                <Font family="SYNC_TO_DEVICE" size="108" weight="BOLD" color="#FF55DC" />
+                <Font family="SYNC_TO_DEVICE" size="100" weight="BOLD" color="#FF55DC" />
             </TimeText>
         </DigitalClock>
 
@@ -136,6 +138,8 @@
         <!-- Bottom cards -->
         <PartDraw x="0" y="0" width="480" height="480">
             <Variant mode="AMBIENT" target="alpha" value="0" />
+            <Rectangle x="43" y="356" width="176" height="80"><Fill color="#B4090D20" /></Rectangle>
+            <Rectangle x="261" y="356" width="176" height="80"><Fill color="#B4090D20" /></Rectangle>
             <Line startX="50" startY="352" endX="202" endY="352"><Stroke color="#00DFFF" width="2" /></Line>
             <Line startX="36" startY="366" endX="36" endY="424"><Stroke color="#00DFFF" width="2" /></Line>
             <Line startX="36" startY="424" endX="52" endY="440"><Stroke color="#00DFFF" width="2" /></Line>
