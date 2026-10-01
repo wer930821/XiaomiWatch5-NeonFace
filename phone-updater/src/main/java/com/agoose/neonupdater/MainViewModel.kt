@@ -267,12 +267,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             log("正在下載最新版 Cyber Neon City…")
             try {
                 val staged = withContext(Dispatchers.IO) {
-                    val url = URL(CYBER_APK_URL)
+                    val url = URL(CYBER_APK_URL + "?t=" + System.currentTimeMillis())
                     val connection = (url.openConnection() as HttpURLConnection).apply {
                         instanceFollowRedirects = true
                         connectTimeout = 15_000
                         readTimeout = 60_000
                         requestMethod = "GET"
+                        useCaches = false
+                        setRequestProperty("Cache-Control", "no-cache, no-store")
+                        setRequestProperty("Pragma", "no-cache")
                     }
                     connection.connect()
                     if (connection.responseCode !in 200..299) {
