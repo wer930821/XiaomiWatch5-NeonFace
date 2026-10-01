@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WatchFaceInfo>
-    <Preview value="@drawable/cyber_preview_png" />
+    <Preview value="@drawable/cyber_exact_anim" />
     <Editable value="true" />
 </WatchFaceInfo>
