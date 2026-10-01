@@ -90,6 +90,12 @@ class CyberBackgroundTest(unittest.TestCase):
         self.assertIn('android:value="2"', manifest.read_text())
         self.assertIn("minSdk = 34", build.read_text())
 
+    def test_date_is_large_enough_to_read_under_the_time(self) -> None:
+        root = ET.parse(WATCHFACE).getroot()
+        date_font = root.find(".//PartText[@x='105'][@y='246']/Text/Font")
+        self.assertIsNotNone(date_font)
+        self.assertEqual("24", date_font.attrib.get("size"))
+
 
 if __name__ == "__main__":
     unittest.main()

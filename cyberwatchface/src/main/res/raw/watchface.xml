@@ -135,7 +135,7 @@
         <!-- Date -->
         <PartText x="105" y="246" width="270" height="40">
             <Text align="CENTER" verticalAlign="CENTER">
-                <Font family="SYNC_TO_DEVICE" size="18" weight="BOLD" color="#E4E9FF">
+                <Font family="SYNC_TO_DEVICE" size="24" weight="BOLD" color="#E4E9FF">
                     <Template><![CDATA[%s, %02d/%02d]]>
                         <Parameter expression="[DAY_OF_WEEK_S]" />
                         <Parameter expression="[MONTH]" />
